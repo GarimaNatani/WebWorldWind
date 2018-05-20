@@ -22,7 +22,7 @@ define([
         '../../util/Logger',
         '../../ogc/ows/OwsKeywords',
         '../../ogc/ows/OwsOperationsMetadata',
-        '../../ogc/ows/OwsServiceIdentification',
+        '../../ogc/ows/OwsWfsServiceIdentification',
         '../../ogc/ows/OwsServiceProvider'
     ],
 
@@ -31,7 +31,7 @@ define([
               OwsFeatureType,
               OwsKeywords,
               OwsOperationsMetadata,
-              OwsServiceIdentification,
+              OwsWfsServiceIdentification,
               OwsServiceProvider) {
         "use strict";
 
@@ -73,9 +73,11 @@ define([
             // Wfs 1.0.0 does not utilize OWS Common GetCapabilities service and capability descriptions.
             if (this.version === "1.0.0") {
                 this.assembleDocument100(root);
-            } else if (this.version === "1.1.0" || this.version === "2.0.0") {
-                this.assembleDocument20x(root);
-            } else {
+            } else if (this.version === "1.1.0" )
+                this.assembleDocument110x(root);
+                else if( this.version === "2.0.0") {
+                this.assembleDocument200x(root);
+                } else {
                  throw new ArgumentError(
                  Logger.logMessage(Logger.LEVEL_SEVERE, "WfsCapabilities", "assembleDocument", "unsupportedVersion"));
             }
@@ -100,13 +102,13 @@ define([
         };
 
         // Internal. Intentionally not documented.
-        WfsCapabilities.prototype.assembleDocument20x = function (root) {
+        WfsCapabilities.prototype.assembleDocument110x = function (root) {
             var children = root.children || root.childNodes;
             for (var c = 0; c < children.length; c++) {
                 var child = children[c];
 
                 if (child.localName === "ServiceIdentification") {
-                    this.serviceIdentification = new OwsServiceIdentification(child);
+                    this.serviceWfsIdentification = new OwsWfsServiceIdentification(child);
                 } else if (child.localName === "ServiceProvider") {
                     this.serviceProvider = new OwsServiceProvider(child);
                 } else if (child.localName === "OperationsMetadata") {
@@ -119,7 +121,28 @@ define([
             }
         };
 
-        // Internal. Intentionally not documented.
+// Internal. Intentionally not documented.
+WfsCapabilities.prototype.assembleDocument200x = function (root) {
+    var children = root.children || root.childNodes;
+    for (var c = 0; c < children.length; c++) {
+        var child = children[c];
+
+        if (child.localName === "ServiceIdentification") {
+            this.serviceWfsIdentification = new OwsWfsServiceIdentification(child);
+        } else if (child.localName === "ServiceProvider") {
+            this.serviceProvider = new OwsServiceProvider(child);
+        } else if (child.localName === "OperationsMetadata") {
+            this.operationsMetadata = new OwsOperationsMetadata(child);
+        }  else if (child.localName === "FeatureTypeList") {
+            this.assembleFeatureType100(child);
+        } else if (child.localName === "Filter_Capabilities") {
+            this.assembleContents101(child);
+        }
+    }
+};
+
+
+// Internal. Intentionally not documented.
         WfsCapabilities.prototype.assembleFeatureType100 = function (element) {
             var children = element.children || element.childNodes;
             var featureType = {};
