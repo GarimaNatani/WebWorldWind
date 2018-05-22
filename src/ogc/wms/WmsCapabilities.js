@@ -117,8 +117,8 @@ define([
                 }
             }
         };
-
         WmsCapabilities.prototype.assembleService = function (element) {
+
             var service = {
                 capsDoc: this
             };
