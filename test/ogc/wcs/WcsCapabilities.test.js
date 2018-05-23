@@ -41,7 +41,7 @@ define([
                         done();
                     } else {
                         done("Test WCS Capabilities Retrieval Error: " + xhr.statusText);
-                    }
+                            }
                 }
             });
             xhr.send(null);

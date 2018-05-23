@@ -20,7 +20,8 @@ module.exports = function(config) {
       {pattern: 'src/**/*.js', included: false},
       {pattern: 'examples/data/KML_Samples.kml', included: false},
       {pattern: 'test/formats/geotiff/*.tif', included: false},
-      {pattern: 'test/ogc/wcs/*.xml', included: false}
+      {pattern: 'test/ogc/wcs/*.xml', included: false},
+	  {pattern: 'test/ogc/wfs/*.xml', included: false}
     ],
 
 
@@ -57,11 +58,12 @@ module.exports = function(config) {
     // enable / disable watching file and executing tests whenever any file changes
     autoWatch: true,
 
+	browserNoActivityTimeout: 300000,
 
     // start these browsers
     // available browser launchers: https://npmjs.org/browse/keyword/karma-launcher
-    browsers: ['PhantomJS'],
-
+  browsers: ['PhantomJS'],
+// browsers: ['Chrome'],
 
     // Continuous Integration mode
     // if true, Karma captures browsers, runs the tests and exits

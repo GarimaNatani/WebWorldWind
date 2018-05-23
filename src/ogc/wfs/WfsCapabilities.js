@@ -20,19 +20,16 @@
 define([
         '../../error/ArgumentError',
         '../../util/Logger',
-        '../../ogc/ows/OwsKeywords',
-        '../../ogc/ows/OwsOperationsMetadata',
+        '../../ogc/ows/OwsWfsOperationsMetadata',
         '../../ogc/ows/OwsWfsServiceIdentification',
-        '../../ogc/ows/OwsServiceProvider'
+        '../../ogc/ows/OwsWfsServiceProvider'
     ],
 
     function (ArgumentError,
               Logger,
-              OwsFeatureType,
-              OwsKeywords,
-              OwsOperationsMetadata,
+              OwsWfsOperationsMetadata,
               OwsWfsServiceIdentification,
-              OwsServiceProvider) {
+              OwsWfsServiceProvider) {
         "use strict";
 
         /**
@@ -71,16 +68,19 @@ define([
             this.updateSequence = root.getAttribute("updateSequence");
 
             // Wfs 1.0.0 does not utilize OWS Common GetCapabilities service and capability descriptions.
-            if (this.version === "1.0.0") {
+           if (this.version === "1.0.0") {
                 this.assembleDocument100(root);
-            } else if (this.version === "1.1.0" )
-                this.assembleDocument110x(root);
-                else if( this.version === "2.0.0") {
+            }
+            /*else if (this.version === "1.1.0" )
+                this.assembleDocument110x(root);/*
+            else if( this.version === "2.0.0") {
                 this.assembleDocument200x(root);
-                } else {
+                }
+
+                else {
                  throw new ArgumentError(
                  Logger.logMessage(Logger.LEVEL_SEVERE, "WfsCapabilities", "assembleDocument", "unsupportedVersion"));
-            }
+            }*/
         };
 
         // Internal. Intentionally not documented.
@@ -110,9 +110,9 @@ define([
                 if (child.localName === "ServiceIdentification") {
                     this.serviceWfsIdentification = new OwsWfsServiceIdentification(child);
                 } else if (child.localName === "ServiceProvider") {
-                    this.serviceProvider = new OwsServiceProvider(child);
+                    this.serviceProvider = new OwsWfsServiceProvider(child);
                 } else if (child.localName === "OperationsMetadata") {
-                    this.operationsMetadata = new OwsOperationsMetadata(child);
+                    this.operationsMetadata = new OwsWfsOperationsMetadata(child);
                 }  else if (child.localName === "FeatureTypeList") {
                     this.assembleFeatureType100(child);
                 } else if (child.localName === "Filter_Capabilities") {
@@ -130,9 +130,9 @@ WfsCapabilities.prototype.assembleDocument200x = function (root) {
         if (child.localName === "ServiceIdentification") {
             this.serviceWfsIdentification = new OwsWfsServiceIdentification(child);
         } else if (child.localName === "ServiceProvider") {
-            this.serviceProvider = new OwsServiceProvider(child);
+            this.serviceProvider = new OwsWfsServiceProvider(child);
         } else if (child.localName === "OperationsMetadata") {
-            this.operationsMetadata = new OwsOperationsMetadata(child);
+            this.operationsMetadata = new OwsWfsOperationsMetadata(child);
         }  else if (child.localName === "FeatureTypeList") {
             this.assembleFeatureType100(child);
         } else if (child.localName === "Filter_Capabilities") {
@@ -197,7 +197,7 @@ WfsCapabilities.prototype.assembleDocument200x = function (root) {
                 }
                 else if (child.localName === "fes:GeometryOperands") {
                     this.Operators(child);
-
+                }
                 else if (child.localName === "fes:SpatialOperators") {
                         this.Operators(child);
                 }
@@ -294,7 +294,7 @@ WfsCapabilities.prototype.assembleDocument200x = function (root) {
                 } else if (child.localName === "SRS") {
                     FeatureType.SRS = child.textContent;
                 } else if (child.localName === "LatLongBoundingBox") {
-                    FeatureType.wgs84BoundingBox = this.assembleLatLonBoundingBox(child);
+                    FeatureType.LatLongBoundingBox = this.assembleLatLonBoundingBox(child);
                 }
                   else if (child.localName === "Abstract") {
                     FeatureType.abstract = child.textContent;
@@ -310,22 +310,19 @@ WfsCapabilities.prototype.assembleDocument200x = function (root) {
                 else if (child.localName === "wgs84BoundingBox") {
                     FeatureType.wgs84BoundingBox = this.assembleBoundingBox(child);
                 }
-                else if (child.localName === "LatLongBoundingBox") {
-                    FeatureType.wgs84BoundingBox = this.assembleLatLonBoundingBox(child);
-                }
+
             }
 
             return FeatureType;
         };
 
-        WfsCapabilities.assembleLatLonBoundingBox = function (bboxElement) {
+        WfsCapabilities.prototype.assembleLatLonBoundingBox = function (bboxElement) {
             var result = {};
-
-            result.minx = WfsCapabilities.getFloatAttribute(bboxElement, "minx");
-            result.miny = WfsCapabilities.getFloatAttribute(bboxElement, "miny");
-            result.maxx = WfsCapabilities.getFloatAttribute(bboxElement, "maxx");
-            result.maxy = WfsCapabilities.getFloatAttribute(bboxElement, "maxy");
-
+            result.minx = bboxElement.getAttribute("minx");
+            result.miny = bboxElement.getAttribute("miny");
+            result.maxx = bboxElement.getAttribute("maxx");
+            result.maxy = bboxElement.getAttribute("maxy");
+            //console.log(result);
             return result;
         };
         // Internal. Intentionally not documented.  --Service version 1.0.0 Attribute
@@ -458,9 +455,11 @@ WfsCapabilities.prototype.assembleDocument200x = function (root) {
 
         // Internal. Intentionally not documented.
         WfsCapabilities.prototype.assembleOnlineResource100 = function (element) {
-            var children = element.children || element.childNodes;
-
-                return children.getAttribute("OnlineResource");
+            var children = element.children || element.childNodes, Attribute;
+            for (var c = 0; c < children.length; c++) {
+                var child = children[c];
+                Attribute = child.getAttribute("OnlineResource");
+            }
 
                 };
 
@@ -567,8 +566,8 @@ WfsCapabilities.prototype.Id_Capabilities= function (element) {
                     var child = children[c];
                  if (child.localName === "fes:TemporalOperands") {
                      this.Operators(child);
-                 else
-                     if (child.localName === "fes:TemporalOperators") {
+                 }
+                 else if (child.localName === "fes:TemporalOperators") {
                          this.Operators(child);
                      }
                  }

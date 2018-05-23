@@ -48,9 +48,8 @@ define([
                 var child = children[c];
 
                 if (child.localName === "Operation") {
-                    this.operation = this.operation || [];
-                    this.operation.push(OwsWfsOperationsMetadata.getOperationMetadataByName(child));
-                }
+                    this.operation = this.getOperationMetadataByName(child);
+                             }
               }
         };
 

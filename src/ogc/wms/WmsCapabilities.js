@@ -58,7 +58,7 @@ define([
 
         WmsCapabilities.prototype.accumulateNamedLayers = function (startLayers, namedLayersArray) {
             var namedLayers = namedLayersArray || [];
-            
+
             if (!startLayers) {
                 return namedLayers;
             }
@@ -77,7 +77,7 @@ define([
         };
 
         /**
-         * Searches for a named layer matching the provided name and returns the WmsLayerCapabilities object representing 
+         * Searches for a named layer matching the provided name and returns the WmsLayerCapabilities object representing
          * the named layer.
          * @param {String} name the layer name to find
          * @returns {WmsLayerCapabilities} if a matching named layer is found or null
@@ -117,8 +117,8 @@ define([
                 }
             }
         };
-        WmsCapabilities.prototype.assembleService = function (element) {
 
+        WmsCapabilities.prototype.assembleService = function (element) {
             var service = {
                 capsDoc: this
             };
