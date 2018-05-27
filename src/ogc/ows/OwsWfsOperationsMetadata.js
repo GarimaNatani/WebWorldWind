@@ -48,41 +48,18 @@ define([
                 var child = children[c];
 
                 if (child.localName === "Operation") {
-                    this.operation = this.getOperationMetadataByName(child);
-                             }
-              }
-        };
-
-        OwsWfsOperationsMetadata.prototype.getOperationMetadataByName = function (element) {
-            var children = element.children || element.childNodes;
-            for (var c = 0; c < children.length; c++) {
-                var child = children[c];
-                if (!child) {
-                    throw new ArgumentError(
-                        Logger.logMessage(Logger.LEVEL_SEVERE, "OwsWfsOperationsMetadata", "getOperationsMetadataByName", "missingName"));
-                }
-
-                if (child.localName === "operation") {
-
-
-                    var children1 = child.children || child.childNodes;
-                    for (var c = 0; c < children1.length; c++) {
-                        var child1 = children1[c];
-                        OwsWfsOperationsMetadata.assembleOperation(child1);
-                    }
+                    this.operation = this.assembleOperation(child);
                 }
                 else if (child.localName === "Constraint") {
-
-                    var children2 = child.children || child.childNodes;
-                    for (var c = 0; c < children2.length; c++) {
-                        var child2 = children2[c];
-                        OwsWfsOperationsMetadata.assembleOperation(child2);
+                        this.operation = this.assembleConstraintsVal(child);
                     }
-                }
-            }
+                             }
+
         };
 
-        OwsWfsOperationsMetadata.assembleOperation = function (element) {
+
+
+        OwsWfsOperationsMetadata.prototype.assembleOperation = function (element) {
             var operation = {};
 
             operation.name = element.getAttribute("name");
@@ -92,16 +69,16 @@ define([
 
                 if (child.localName === "DCP") {
                     operation.dcp = operation.dcp || [];
-                    operation.dcp.push(OwsWfsOperationsMetadata.assembleDcp(child));
+                    operation.dcp.push(OwsWfsOperationsMetadata.prototype.assembleDcp(child));
                 }
 
                 else if (child.localName === "Parameter") {
                     operation.Parameter = operation.Parameter || [];
-                    operation.Parameter.push(OwsWfsOperationsMetadata.assembleParameterVal(child));
+                    operation.Parameter.push(OwsWfsOperationsMetadata.prototype.assembleParameterVal(child));
                 }
                 else if (child.localName === "Constraints") {
                     operation.Constraints = operation.Constraints || [];
-                    operation.Constraints.push(OwsWfsOperationsMetadata.assembleConstraintsVal(child));
+                    operation.Constraints.push(OwsWfsOperationsMetadata.prototype.assembleConstraintsVal(child));
                 }
 
             }
@@ -109,7 +86,7 @@ define([
             return operation;
         };
 
-        OwsWfsOperationsMetadata.assembleDcp = function (element) {
+        OwsWfsOperationsMetadata.prototype.assembleDcp = function (element) {
             var dcp = {};
 
             var children = element.children || element.childNodes;
@@ -123,10 +100,10 @@ define([
 
                         if (httpMethod.localName === "Get") {
                             dcp.getMethods = dcp.getMethods || [];
-                            dcp.getMethods.push(OwsWfsOperationsMetadata.assembleMethod(httpMethod));
+                            dcp.getMethods.push(OwsWfsOperationsMetadata.prototype.assembleMethod(httpMethod));
                         } else if (httpMethod.localName === "Post") {
                             dcp.postMethods = dcp.postMethods || [];
-                            dcp.postMethods.push(OwsWfsOperationsMetadata.assembleMethod(httpMethod));
+                            dcp.postMethods.push(OwsWfsOperationsMetadata.prototype.assembleMethod(httpMethod));
                         }
                     }
                 }
@@ -135,8 +112,24 @@ define([
             return dcp;
         };
 
+        OwsWfsOperationsMetadata.prototype.assembleMethod = function (element) {
+            var result = {};
 
-        OwsWfsOperationsMetadata.assembleParameterVal  = function (element) {
+            result.url = element.getAttribute("xlink:href");
+
+            var children = element.children || element.childNodes;
+            for (var c = 0; c < children.length; c++) {
+                var child = children[c];
+
+                if (child.localName === "Constraint") {
+                    result.constraint = result.constraint || [];
+                    result.constraint.push(new OwsConstraint(child));
+                }
+            }
+
+            return result;
+        };
+        OwsWfsOperationsMetadata.prototype.assembleParameterVal  = function (element) {
             var children = element.children || element.childNodes;
             for (var c = 0; c < children.length; c++) {
                 var child = children[c];
@@ -158,14 +151,10 @@ define([
                 {
                     this.resultType = new OwsWfsConstraint(child);
                 }
-                else if (child.getAttribute(name) === "resultType")
-                {
-                    this.resultType = new OwsWfsConstraint(child);
-                }
-                }
+               }
           };
 
-        OwsWfsOperationsMetadata.assembleConstraintsVal = function (element) {
+        OwsWfsOperationsMetadata.prototype.assembleConstraintsVal = function (element) {
             var Constraints={};
             Constraints.name = element.getAttribute("name");
             var children = element.children || element.childNodes;

@@ -71,16 +71,18 @@ define([
            if (this.version === "1.0.0") {
                 this.assembleDocument100(root);
             }
-            /*else if (this.version === "1.1.0" )
-                this.assembleDocument110x(root);/*
+
+            else if (this.version === "1.1.0" )
+                this.assembleDocument110x(root);
             else if( this.version === "2.0.0") {
-                this.assembleDocument200x(root);
+          //     console.log("Yes in 2.0.0......................................................................");
+               this.assembleDocument200x(root);
                 }
 
                 else {
                  throw new ArgumentError(
                  Logger.logMessage(Logger.LEVEL_SEVERE, "WfsCapabilities", "assembleDocument", "unsupportedVersion"));
-            }*/
+            }
         };
 
         // Internal. Intentionally not documented.
@@ -104,18 +106,26 @@ define([
         // Internal. Intentionally not documented.
         WfsCapabilities.prototype.assembleDocument110x = function (root) {
             var children = root.children || root.childNodes;
+
             for (var c = 0; c < children.length; c++) {
                 var child = children[c];
-
+                console.log(child);
                 if (child.localName === "ServiceIdentification") {
+                    console.log ("In Service Identification")
+                    console.log(child.localName);
                     this.serviceWfsIdentification = new OwsWfsServiceIdentification(child);
                 } else if (child.localName === "ServiceProvider") {
+                    console.log("Service Provider")
+                    console.log(child.localName);
                     this.serviceProvider = new OwsWfsServiceProvider(child);
                 } else if (child.localName === "OperationsMetadata") {
+                    console.log(child.localName);
                     this.operationsMetadata = new OwsWfsOperationsMetadata(child);
                 }  else if (child.localName === "FeatureTypeList") {
+                    console.log(child.localName);
                     this.assembleFeatureType100(child);
                 } else if (child.localName === "Filter_Capabilities") {
+
                     this.assembleContents110(child);
                 }
             }
@@ -124,19 +134,21 @@ define([
 // Internal. Intentionally not documented.
 WfsCapabilities.prototype.assembleDocument200x = function (root) {
     var children = root.children || root.childNodes;
-    for (var c = 0; c < children.length; c++) {
+    //console.log("Inside 2 X......................................................................");
+     for (var c = 0; c < children.length; c++) {
         var child = children[c];
-
         if (child.localName === "ServiceIdentification") {
-            this.serviceWfsIdentification = new OwsWfsServiceIdentification(child);
+                this.serviceWfsIdentification = new OwsWfsServiceIdentification(child);
         } else if (child.localName === "ServiceProvider") {
-            this.serviceProvider = new OwsWfsServiceProvider(child);
+                      this.serviceProvider = new OwsWfsServiceProvider(child);
         } else if (child.localName === "OperationsMetadata") {
+
             this.operationsMetadata = new OwsWfsOperationsMetadata(child);
         }  else if (child.localName === "FeatureTypeList") {
+
             this.assembleFeatureType100(child);
         } else if (child.localName === "Filter_Capabilities") {
-            this.assembleContents110(child);
+              this.assembleContents110(child);
         }
     }
 };
@@ -152,6 +164,7 @@ WfsCapabilities.prototype.assembleDocument200x = function (root) {
                 if (child.localName === "FeatureType") {
                     this.FeatureType = this.FeatureType || [];
                     this.FeatureType.push(this.assembleFeatureType101(child));
+
                 }
                 else if (child.localName === "Operations") {
                     featureType.Operations= this.assembleOperations100(child);
@@ -167,9 +180,10 @@ WfsCapabilities.prototype.assembleDocument200x = function (root) {
                 var child = children[c];
 
                 //Get all nodes check it
-                Operations[c] = child.getTagNames;
-
+                Operations[c] = child.localName;
+                Operations[c];
                 }
+
             return Operations;
 
         };
@@ -213,7 +227,8 @@ WfsCapabilities.prototype.assembleDocument200x = function (root) {
                        var child = children[c];
 
                         //Get all nodes check it
-                        Operator[c] = child.getTagNames;
+                  console.log(child.localName);
+                        Operator[c] = child.localName;
                     }
                     return Operator;
 
@@ -225,7 +240,7 @@ WfsCapabilities.prototype.assembleDocument200x = function (root) {
             for (var c = 0; c < children.length; c++) {
                 var child = children[c];
                 if (child.localName === "Logical_Operators") {
-                    return child.getTagNames();
+                    return child.localName;
                 }
 
               else if (child.localName === "Comparison_Operators") {
@@ -243,7 +258,7 @@ WfsCapabilities.prototype.assembleDocument200x = function (root) {
                 }
 
                else if (child.localName === "LogicalOperators") {
-                    return child.getTagNames();
+                    return child.localName;
                 }
             }
                 };
@@ -253,7 +268,7 @@ WfsCapabilities.prototype.assembleDocument200x = function (root) {
                 for (var c = 0; c < children.length; c++) {
                     var child = children[c];
                 if (child.localName === "Simple_Arithmetic") {
-                    return child.getTagNames();
+                    return child.localName;
                 }
 
                else if (child.localName === "Functions")
@@ -419,7 +434,7 @@ WfsCapabilities.prototype.assembleDocument200x = function (root) {
                     var child = children[c];
 
                     //Get all nodes check it
-                    resultFormat[c] = child.getTagNames;
+                    resultFormat[c] = child.localName;
                 }
                         return resultFormat;
 
@@ -500,7 +515,6 @@ WfsCapabilities.prototype.assembleKeywordList = function (element) {
             keywords.push(child.textContent);
         }
     }
-
     return keywords;
 };
 
@@ -571,7 +585,7 @@ WfsCapabilities.prototype.Id_Capabilities= function (element) {
                          this.Operators(child);
                      }
                  }
-                 };
+           };
 
 
   WfsCapabilities.prototype.Functions= function (element) {
@@ -610,7 +624,7 @@ WfsCapabilities.prototype.Id_Capabilities= function (element) {
             };
 
 
-       WfsCapabilities.prototype.Functions= function (element) {
+  WfsCapabilities.prototype.Functions= function (element) {
                var children = element.children || element.childNodes, Arguments = {};
                 for (var c = 0; c < children.length; c++) {
                     var child = children[c];
@@ -621,8 +635,6 @@ WfsCapabilities.prototype.Id_Capabilities= function (element) {
         }
 
         };
-
-
 
         return WfsCapabilities;
 });
