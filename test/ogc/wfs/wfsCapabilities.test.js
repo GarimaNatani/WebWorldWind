@@ -59,34 +59,73 @@ define([
             var wfsCaps = new WfsCapabilities(xmlDom);
 
             var updateSequence = wfsCaps.updateSequence;
-            console.log(updateSequence);
+           // console.log(updateSequence);
             expect(updateSequence).toBe("58950");
         });
+
+
+        describe("Service Identification", function () {
+
+            it("should have title My GeoServer WFS", function () {
+                var wfsCaps = new WfsCapabilities(xmlDom);
+                var title = wfsCaps.serviceWfsIdentification.titles[0].value;
+
+                expect(title).toBe('My GeoServer WFS');
+            });
+        });
+
+        describe("ServiceProvider", function () {
+
+            it("should have blank value", function () {
+                var wfsCaps = new WfsCapabilities(xmlDom);
+                var name = wfsCaps.serviceProvider.serviceContact.individualName;
+                expect(name).toBe("");
+            });
+        });
+
+        describe("OperationsMetadata", function () {
+
+            it("should have url", function () {
+                var wfsCaps = new WfsCapabilities(xmlDom);
+                var url = wfsCaps.operationsMetadata.operation[2].dcp[0].getMethods[0].url;
+                expect(url).toBe("https://urban-tep.eo.esa.int/puma/wfs");
+            });
+        });
+
+        describe("OperationsMetadata Constraints", function () {
+
+            it("should have ImplementsBasicWFS value", function () {
+                var wfsCaps = new WfsCapabilities(xmlDom);
+                var name = wfsCaps.operationsMetadata.Constraint[0].name;
+                expect(name).toBe("ImplementsBasicWFS");
+            });
+        });
+
+      /*  describe("FeatureTypeList", function () {
+
+            it("should have FeatureType eonode:zwe_adm0", function () {
+                var wfsCaps = new WfsCapabilities(xmlDom);
+                var name = wfsCaps.FeatureType[0].name;
+               // console.log(name);
+             //   expect(name).toBe(name);
+               expect(name).toBe("geonode:AUT_75m_binConnectivity_10km_5km_3km_2_km_1km");
+            });
+        });*/
     });
 
-/*        describe("Service Identification", function () {
 
-            it("should have scaling extension detailed in the profile", function () {
-                var wfsCaps = new wfsCapabilities(xmlDom);
 
-                var scalingExtension = wfsCaps.assembleService100.profile[1];
+      //  describe("Operations Metadata", function () {
 
-                expect(scalingExtension)
-                    .toBe("http://www.opengis.net/spec/wfs_service-extension_scaling/1.0/conf/scaling");
-            });
-        });
+        //    it("should have a GET GetFeature link defined", function () {
+       //         var wfsCaps = new wfsCapabilities(xmlDom);
 
-        describe("Operations Metadata", function () {
+      //      var url = wfsCaps.operationsMetadata.getOperationMetadataByName("GetFeature").dcp[0].getMethods[0].url;
 
-            it("should have a GET GetFeature link defined", function () {
-                var wfsCaps = new wfsCapabilities(xmlDom);
-
-                var url = wfsCaps.operationsMetadata.getOperationMetadataByName("GetFeature").dcp[0].getMethods[0].url;
-
-                expect(url).toBe("http://localhost:8080/geoserver/wfs?");
-            });
-        });
-
+//                expect(url).toBe("http://localhost:8080/geoserver/wfs?");
+  //          });
+    //    });
+/*
         describe("Service Metadata", function () {
 
             it("should have seven supported formats", function () {

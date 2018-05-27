@@ -22,14 +22,16 @@ define([
         '../../util/Logger',
         '../../ogc/ows/OwsWfsOperationsMetadata',
         '../../ogc/ows/OwsWfsServiceIdentification',
-        '../../ogc/ows/OwsWfsServiceProvider'
+        '../../ogc/ows/OwsWfsServiceProvider',
+        '../../ogc/ows/OwsKeywords'
     ],
 
     function (ArgumentError,
               Logger,
               OwsWfsOperationsMetadata,
               OwsWfsServiceIdentification,
-              OwsWfsServiceProvider) {
+              OwsWfsServiceProvider,
+              OwsKeywords) {
         "use strict";
 
         /**
@@ -111,19 +113,13 @@ define([
                 var child = children[c];
                 console.log(child);
                 if (child.localName === "ServiceIdentification") {
-                    console.log ("In Service Identification")
-                    console.log(child.localName);
-                    this.serviceWfsIdentification = new OwsWfsServiceIdentification(child);
+                   this.serviceWfsIdentification = new OwsWfsServiceIdentification(child);
                 } else if (child.localName === "ServiceProvider") {
-                    console.log("Service Provider")
-                    console.log(child.localName);
-                    this.serviceProvider = new OwsWfsServiceProvider(child);
+                   this.serviceProvider = new OwsWfsServiceProvider(child);
                 } else if (child.localName === "OperationsMetadata") {
-                    console.log(child.localName);
-                    this.operationsMetadata = new OwsWfsOperationsMetadata(child);
+                      this.operationsMetadata = new OwsWfsOperationsMetadata(child);
                 }  else if (child.localName === "FeatureTypeList") {
-                    console.log(child.localName);
-                    this.assembleFeatureType100(child);
+                       this.assembleFeatureType100(child);
                 } else if (child.localName === "Filter_Capabilities") {
 
                     this.assembleContents110(child);
@@ -173,18 +169,19 @@ WfsCapabilities.prototype.assembleDocument200x = function (root) {
         };
 
         WfsCapabilities.prototype.assembleOperations100 = function (element) {
-            var Operations = [];
+            var operations = [];
             var children = element.children || element.childNodes;
 
             for (var c = 0; c < children.length; c++) {
                 var child = children[c];
-
                 //Get all nodes check it
-                Operations[c] = child.localName;
-                Operations[c];
+                this.operations = this.operations || []
+                this.operations.push(child.localName);
+
+
                 }
 
-            return Operations;
+            return operations;
 
         };
 
@@ -314,7 +311,8 @@ WfsCapabilities.prototype.assembleDocument200x = function (root) {
                   else if (child.localName === "Abstract") {
                     FeatureType.abstract = child.textContent;
                 } else if (child.localName === "KeywordList") {
-                    FeatureType.keywordList = this.assembleKeywordList(child);
+                    FeatureType.keywordList =FeatureType.keywordList || [];
+                    FeatureType.keywordList.push(new OwsKeywords(child));
                 }
                 else if (child.localName === "DefaultCRS") {
                     FeatureType.DefaultCRS = child.textContent;
@@ -504,19 +502,18 @@ WfsCapabilities.prototype.assembleDocument200x = function (root) {
     return boundingBox;
 };
 
-WfsCapabilities.prototype.assembleKeywordList = function (element) {
-    var keywords = [];
-
+/*WfsCapabilities.prototype.assembleKeywordList = function (element) {
+    var key ={};
     var children = element.children || element.childNodes;
+    cnsole.log(children.length);
     for (var c = 0; c < children.length; c++) {
         var child = children[c];
-
-        if (child.localName === "Keyword") {
-            keywords.push(child.textContent);
-        }
+        console.log(child.textContent);
+        key.Keyword=key.Keyword;
+        key.Keyword.push(child.textContent);
     }
-    return keywords;
-};
+    return key;
+};*/
 
 WfsCapabilities.prototype.assembleContents110 = function (element) {
     var children = element.children || element.childNodes;

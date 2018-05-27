@@ -48,10 +48,12 @@ define([
                 var child = children[c];
 
                 if (child.localName === "Operation") {
-                    this.operation = this.assembleOperation(child);
+                    this.operation = this.operation || [];
+                    this.operation.push(OwsWfsOperationsMetadata.prototype.assembleOperation(child));
                 }
                 else if (child.localName === "Constraint") {
-                        this.operation = this.assembleConstraintsVal(child);
+                        this.Constraint = this.Constraint || [];
+                         this.Constraint.push(new OwsWfsConstraint(child));
                     }
                              }
 
@@ -78,7 +80,7 @@ define([
                 }
                 else if (child.localName === "Constraints") {
                     operation.Constraints = operation.Constraints || [];
-                    operation.Constraints.push(OwsWfsOperationsMetadata.prototype.assembleConstraintsVal(child));
+                    operation.Constraints.push(new OwsWfsConstraint(child));
                 }
 
             }
@@ -153,16 +155,6 @@ define([
                 }
                }
           };
-
-        OwsWfsOperationsMetadata.prototype.assembleConstraintsVal = function (element) {
-            var Constraints={};
-            Constraints.name = element.getAttribute("name");
-            var children = element.children || element.childNodes;
-            for (var c = 0; c < children.length; c++) {
-                var child = children[c];
-                this.Constraints = new OwsWfsConstraint(child);
-                }
-        };
 
         return OwsWfsOperationsMetadata;
     });
