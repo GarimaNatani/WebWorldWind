@@ -63,32 +63,26 @@ define([
             this.assembleDocument();
         };
 
-        // Internal. Intentionally not documented.
-        WfsCapabilities.prototype.assembleDocument = function () {
+
+    WfsCapabilities.prototype.assembleDocument = function () {
             // Determine version and update sequence
             var root = this.xmlDom.documentElement;
 
             this.version = root.getAttribute("version");
             this.updateSequence = root.getAttribute("updateSequence");
-
             // Wfs 1.0.0 does not utilize OWS Common GetCapabilities service and capability descriptions.
-           if (this.version === "1.0.0") {
-                this.assembleDocument100(root);
-            }
-
-            else if (this.version === "1.1.0" || this.version === "2.0.0") {
-
-              this.assembleDocument200x(root);
+                 if (this.version === "1.0.0") {
+                      this.assembleDocument100(root);
+                    }
+                 else if (this.version === "1.1.0" || this.version === "2.0.0") {
+                      this.assembleDocument200x(root);
+                    }
+                 else {
+                      throw new ArgumentError(Logger.logMessage(Logger.LEVEL_SEVERE, "WfsCapabilities", "assembleDocument", "unsupportedVersion"));
                 }
-
-                else {
-                 throw new ArgumentError(
-                 Logger.logMessage(Logger.LEVEL_SEVERE, "WfsCapabilities", "assembleDocument", "unsupportedVersion"));
-            }
         };
 
-        // Internal. Intentionally not documented.
-        WfsCapabilities.prototype.assembleDocument100 = function (root) {
+    WfsCapabilities.prototype.assembleDocument100 = function (root) {
             var children = root.children || root.childNodes;
             for (var c = 0; c < children.length; c++) {
                 var child = children[c];
@@ -99,218 +93,170 @@ define([
                 } else if (child.localName === "FeatureTypeList") {
                     this.assembleFeatureType100(child);
                 }   else if (child.localName === "Filter_Capabilities") {
-                      this.Filter_Capabilities = this.assembleContents101(child);
-
+                    this.Filter_Capabilities = this.assembleContents101(child);
                 }
             }
         };
 
         // Internal. Intentionally not documented.
-        WfsCapabilities.prototype.assembleDocument110x = function (root) {
+    WfsCapabilities.prototype.assembleDocument110x = function (root) {
             var children = root.children || root.childNodes;
-
             for (var c = 0; c < children.length; c++) {
                 var child = children[c];
-               // console.log(child);
                 if (child.localName === "ServiceIdentification") {
                    this.serviceWfsIdentification = new OwsWfsServiceIdentification(child);
                 } else if (child.localName === "ServiceProvider") {
                    this.serviceProvider = new OwsWfsServiceProvider(child);
                 } else if (child.localName === "OperationsMetadata") {
                       this.operationsMetadata = new OwsWfsOperationsMetadata(child);
-                }  else if (child.localName === "FeatureTypeList") {
+                } else if (child.localName === "FeatureTypeList") {
                        this.assembleFeatureType100(child);
                 } else if (child.localName === "Filter_Capabilities") {
                     this.Filter_Capabilities= this.assembleContents110(child);
-                  //  console.log(this.Filter_Capabilities);
                 }
             }
         };
 
-// Internal. Intentionally not documented.
-WfsCapabilities.prototype.assembleDocument200x = function (root) {
-    var children = root.children || root.childNodes;
-    //console.log("Inside 2 X......................................................................");
-     for (var c = 0; c < children.length; c++) {
-        var child = children[c];
-        if (child.localName === "ServiceIdentification") {
-                this.serviceWfsIdentification = new OwsWfsServiceIdentification(child);
-        } else if (child.localName === "ServiceProvider") {
+
+    WfsCapabilities.prototype.assembleDocument200x = function (root) {
+            var children = root.children || root.childNodes;
+            for (var c = 0; c < children.length; c++) {
+                var child = children[c];
+                if (child.localName === "ServiceIdentification") {
+                    this.serviceWfsIdentification = new OwsWfsServiceIdentification(child);
+                } else if (child.localName === "ServiceProvider") {
                       this.serviceProvider = new OwsWfsServiceProvider(child);
-        } else if (child.localName === "OperationsMetadata") {
-
-            this.operationsMetadata = new OwsWfsOperationsMetadata(child);
-        }  else if (child.localName === "FeatureTypeList") {
-            this.assembleFeatureType100(child);
-        } else if (child.localName === "Filter_Capabilities") {
-            this.Filter_Capabilities= this.assembleContents110(child);
-          //  console.log(this.Filter_Capabilities);
-        }
-    }
-};
+                } else if (child.localName === "OperationsMetadata") {
+                      this.operationsMetadata = new OwsWfsOperationsMetadata(child);
+                } else if (child.localName === "FeatureTypeList") {
+                      this.assembleFeatureType100(child);
+                } else if (child.localName === "Filter_Capabilities") {
+                      this.Filter_Capabilities= this.assembleContents110(child);
+                }
+           }
+        };
 
 
-// Internal. Intentionally not documented.
-        WfsCapabilities.prototype.assembleFeatureType100 = function (element) {
+    WfsCapabilities.prototype.assembleFeatureType100 = function (element) {
             var children = element.children || element.childNodes;
-            //var featureType = {};
             for (var c = 0; c < children.length; c++) {
                  var child = children[c];
-
-                if (child.localName === "FeatureType") {
-                    this.FeatureType = this.FeatureType || [];
-                    this.FeatureType.push(this.assembleFeatureType101(child));
-                }
-                else if (child.localName === "Operations") {
-                   // featureType.Operations = featureType.Operations || [];
-                    //featureType.Operations.push(this.assembleOperations100(child));
-                    this.Operations= this.assembleOperations100(child);
-                }
+                 if (child.localName === "FeatureType") {
+                     this.FeatureType = this.FeatureType || [];
+                     this.FeatureType.push(this.assembleFeatureType101(child));
+                 } else if (child.localName === "Operations") {
+                     this.Operations= this.assembleOperations100(child);
+                 }
             }
-            //return featureType;
-        };
+         };
 
-        WfsCapabilities.prototype.assembleOperations100 = function (element) {
+    WfsCapabilities.prototype.assembleOperations100 = function (element) {
             var operations = [];
             var children = element.children || element.childNodes;
-
             for (var c = 0; c < children.length; c++) {
                 var child = children[c];
-                //Get all nodes check it
                 this.operations = this.operations || []
                 this.operations.push(child.localName);
-
-
-                }
-
+            }
             return operations;
-
         };
 
-        WfsCapabilities.prototype.assembleContents101 = function (element) {
+    WfsCapabilities.prototype.assembleContents101 = function (element) {
             var children = element.children || element.childNodes;
-               // spatial00 ={};
             for (var c = 0; c < children.length; c++) {
                 var child = children[c];
-                if (child.localName === "Spatial_Capabilities") {
+                    if (child.localName === "Spatial_Capabilities") {
                     this.Spatial_Capabilities= this.assembleSpatialCapabilities(child);
-                }
-                 else if (child.localName === "Scalar_Capabilities") {
+                    } else if (child.localName === "Scalar_Capabilities") {
                     this.Scalar_Capabilities= this.assembleScalarCapabilities(child);
-                        }
+                    }
             }
-      //  return spatial00;
         };
 
-        WfsCapabilities.prototype.assembleSpatialCapabilities =function (element) {
+    WfsCapabilities.prototype.assembleSpatialCapabilities =function (element) {
             var children = element.children || element.childNodes,spatialCap ={};
             for (var c = 0; c < children.length; c++) {
                 var child = children[c];
                 if (child.localName === "Spatial_Operators") {
-
                     spatialCap.spop=this.assembleOperator100(child);
-                }
-                else if (child.localName === "GeometryOperands") {
+                } else if (child.localName === "GeometryOperands") {
                     spatialCap.geop= this.getOperatorName(child);
-                }
-                else if (child.localName === "SpatialOperators") {
+                } else if (child.localName === "SpatialOperators") {
                     spatialCap.spop=this.getOperatorName(child);
                 }
-
             }
             return spatialCap;
-            };
+        };
 
-        WfsCapabilities.prototype.assembleOperator100 = function (element) {
+    WfsCapabilities.prototype.assembleOperator100 = function (element) {
             var Operator = [];
-              var children = element.children || element.childNodes;
-
-              for (var c = 0; c < children.length; c++) {
-                       var child = children[c];
-                      //  console.log(child.localName);
+            var children = element.children || element.childNodes;
+            for (var c = 0; c < children.length; c++) {
+                var child = children[c];
                         Operator.name=Operator.name ||[];
                         Operator.name.push(child.localName);
                     }
-                    return Operator;
+             return Operator;
+        };
 
-                };
-
-        WfsCapabilities.prototype.assembleScalarCapabilities =function (element) {
+    WfsCapabilities.prototype.assembleScalarCapabilities =function (element) {
 
             var children = element.children || element.childNodes, scalarCap ={};
             for (var c = 0; c < children.length; c++) {
                 var child = children[c];
                 if (child.localName === "Logical_Operators") {
                     scalarCap.Logical_Operators= child.localName;
-                }
-
-              else if (child.localName === "Comparison_Operators") {
-                    // Calling function created for Spatial proerty
+                } else if (child.localName === "Comparison_Operators") {
                     scalarCap.Comparison_Operators= this.assembleOperator100(child);
-                }
-
-              else if (child.localName === "Arithmetic_Operators") {
-                    // Calling function created for Spatial proerty
+                } else if (child.localName === "Arithmetic_Operators") {
                     scalarCap.Arithmetic_Operators= this.assembleArthmeticOperator100(child);
-                }
-                else if (child.localName === "ComparisonOperators") {
+                } else if (child.localName === "ComparisonOperators") {
                    scalarCap.ComparisonOperators= this.getOperatorName(child);
-                }
-
-               else if (child.localName === "LogicalOperators") {
+                } else if (child.localName === "LogicalOperators") {
                     scalarCap.LogicalOperators = child.localName;
-                     }
-                else if (child.localName === "ArithmeticOperators") {
-                    // Calling function created for Spatial proerty
+                } else if (child.localName === "ArithmeticOperators") {
                     scalarCap.ArithmeticOperators= this.assembleArthmeticOperator100(child);
                 }
             }
             return scalarCap;
-                };
+       };
 
-        WfsCapabilities.prototype.assembleArthmeticOperator100 =function (element) {
-                var children = element.children || element.childNodes, Arth={};
-                for (var c = 0; c < children.length; c++) {
-                    var child = children[c];
+    WfsCapabilities.prototype.assembleArthmeticOperator100 =function (element) {
+            var children = element.children || element.childNodes, Arth={};
+            for (var c = 0; c < children.length; c++) {
+                var child = children[c];
                 if (child.localName === "Simple_Arithmetic") {
-                    Arth.simpleArithmetic= child.localName;
-                }
-
-               else if (child.localName === "Functions")
-                {
+                    Arth.simpleArithmetic = child.localName;
+                } else if (child.localName === "Functions") {
                     Arth.functions=this.assembleFunction100(child);
                 }
-             }
-             return Arth;
-        };
-       // Internal. Intentionally not documented.
+            }
+      return Arth;
+      };
 
-            WfsCapabilities.prototype.assembleFunction100 = function (element) {
-                var children = element.children || element.childNodes, func = {};
-                   var child = children[0];
-                     var children1 = child.children1 || child.childNodes;
-                         for(var c = 0; c < children1.length; c++) {
-                          var child1 = children1[c];
-                          func.functionName = func.functionName || [];
-                          func.functionName.push(this.nameArgument(child1));
-                   }
+    WfsCapabilities.prototype.assembleFunction100 = function (element) {
+            var children = element.children || element.childNodes, func = {};
+            var child = children[0];
+            var children1 = child.children1 || child.childNodes;
+            for(var c = 0; c < children1.length; c++) {
+            var child1 = children1[c];
+            func.functionName = func.functionName || [];
+            func.functionName.push(this.nameArgument(child1));
+              }
+         return func;
+      };
 
-               return func;
-            };
-
-        WfsCapabilities.prototype.nameArgument = function (element) {
+    WfsCapabilities.prototype.nameArgument = function (element) {
             var func1 = {};
               func1.name = element.textContent;
               func1.nArgs =element.getAttribute("nArgs");
             return func1;
         };
 
-        // Internal. Intentionally not documented.
-        WfsCapabilities.prototype.assembleFeatureType101 = function (element) {
+    WfsCapabilities.prototype.assembleFeatureType101 = function (element) {
             var children = element.children || element.childNodes, FeatureType = {};
             for (var c = 0; c < children.length; c++) {
                 var child = children[c];
-
                 if (child.localName === "Name") {
                     FeatureType.Name = child.textContent;
                 } else if (child.localName === "Title") {
@@ -321,36 +267,31 @@ WfsCapabilities.prototype.assembleDocument200x = function (root) {
                     FeatureType.SRS = child.textContent;
                 } else if (child.localName === "LatLongBoundingBox") {
                     FeatureType.LatLongBoundingBox = this.assembleLatLonBoundingBox(child);
-                }
-                  else if (child.localName === "Abstract") {
+                } else if (child.localName === "Abstract") {
                     FeatureType.abstract = child.textContent;
                 } else if (child.localName === "KeywordList") {
                    FeatureType.keywordList =new OwsWfsKeywords(child);
-                }
-                else if (child.localName === "DefaultCRS") {
+                } else if (child.localName === "DefaultCRS") {
                     FeatureType.DefaultCRS = child.textContent;
-                }
-                else if (child.localName === "DefaultSRS") {
+                } else if (child.localName === "DefaultSRS") {
                     FeatureType.DefaultSRS = child.textContent;
-                }
-                else if (child.localName === "WGS84BoundingBox") {
+                } else if (child.localName === "WGS84BoundingBox") {
                     FeatureType.wgs84BoundingBox = this.assembleBoundingBox(child);
                 }
             }
             return FeatureType;
         };
 
-        WfsCapabilities.prototype.assembleLatLonBoundingBox = function (bboxElement) {
+    WfsCapabilities.prototype.assembleLatLonBoundingBox = function (bboxElement) {
             var result = {};
             result.minx = bboxElement.getAttribute("minx");
             result.miny = bboxElement.getAttribute("miny");
             result.maxx = bboxElement.getAttribute("maxx");
             result.maxy = bboxElement.getAttribute("maxy");
-            //console.log(result);
             return result;
         };
-        // Internal. Intentionally not documented.  --Service version 1.0.0 Attribute
-        WfsCapabilities.prototype.assembleService100 = function (element) {
+
+    WfsCapabilities.prototype.assembleService100 = function (element) {
             var children = element.children || element.childNodes, service = {};
             for (var c = 0; c < children.length; c++) {
                 var child = children[c];
@@ -374,23 +315,18 @@ WfsCapabilities.prototype.assembleDocument200x = function (root) {
             return service;
         };
 
-        // Internal. Intentionally not documented.
-        WfsCapabilities.prototype.assembleCapability100 = function (element) {
+    WfsCapabilities.prototype.assembleCapability100 = function (element) {
             var children = element.children || element.childNodes, capability = {};
             for (var c = 0; c < children.length; c++) {
                 var child = children[c];
-
                 if (child.localName === "Request") {
                     capability.request = this.assembleRequestCapabilities100(child);
-
                 }
             }
-
             return capability;
         };
 
-        // Internal. Intentionally not documented.
-        WfsCapabilities.prototype.assembleRequestCapabilities100 = function (element) {
+    WfsCapabilities.prototype.assembleRequestCapabilities100 = function (element) {
             var children = element.children || element.childNodes, request = {};
             for (var c = 0; c < children.length; c++) {
                 var child = children[c];
@@ -400,14 +336,11 @@ WfsCapabilities.prototype.assembleDocument200x = function (root) {
                     request.describefeature = this.assembleDCPType100(child);
                 } else if (child.localName === "GetFeature") {
                     request.getfeature = this.assembleDCPType100(child);
-                }
-                else if (child.localName === "Transaction") {
+                } else if (child.localName === "Transaction") {
                     request.transaction = this.assembleDCPType100(child);
-                }
-                else if (child.localName === "LockFeature") {
+                } else if (child.localName === "LockFeature") {
                     request.Lockfeature = this.assembleDCPType100(child);
-                }
-                else if (child.localName === "GetFeatureWithLock") {
+                } else if (child.localName === "GetFeatureWithLock") {
                     request.getfeaturewithlock = this.assembleDCPType100(child);
                 }
             }
@@ -415,88 +348,69 @@ WfsCapabilities.prototype.assembleDocument200x = function (root) {
             return request;
         };
 
-        // Internal. Intentionally not documented.
-        WfsCapabilities.prototype.assembleDCPType100 = function (element) {
+    WfsCapabilities.prototype.assembleDCPType100 = function (element) {
             var children = element.children || element.childNodes, dcpType = {};
             for (var c = 0; c < children.length; c++) {
                 var child = children[c];
-
                 if (child.localName === "DCPType") {
                      this.assembleHttp100(child, dcpType);
-                }
-                else if(child.localName === "ResultFormat") {
+                }  else if(child.localName === "ResultFormat") {
                     dcpType.ResultFormat = this.assembleResFor100(child);
-                }
-                else if(child.localName === "SchemaDescriptionLanguage")
-                {
-
+                }  else if(child.localName === "SchemaDescriptionLanguage") {
                     dcpType.SchemaDescriptionLanguage=this.assembleSchemaDescriptionLanguage(child);
                 }
-
             }
-
-            return dcpType;
+         return dcpType;
         };
-            WfsCapabilities.prototype.assembleResFor100 = function (element) {
-                var resultFormat = {};
-                var children = element.children || element.childNodes;
-
-                for (var c = 0; c < children.length; c++) {
+    WfsCapabilities.prototype.assembleResFor100 = function (element) {
+             var resultFormat = {};
+             var children = element.children || element.childNodes;
+             for (var c = 0; c < children.length; c++) {
                     var child = children[c];
-
-                    //Get all nodes check it
                     resultFormat.resfom =resultFormat.resfom || [];
                     resultFormat.resfom.push(child.localName);
                 }
-                        return resultFormat;
+                return resultFormat;
+        };
 
-            };
-
-        WfsCapabilities.prototype.assembleSchemaDescriptionLanguage = function (element) {
+    WfsCapabilities.prototype.assembleSchemaDescriptionLanguage = function (element) {
             var SchemaDescriptionLanguage= {};
             var children = element.children || element.childNodes;
             var child = children[0];
-                SchemaDescriptionLanguage.name=child.localName;
-                return child.localName;
+            SchemaDescriptionLanguage.name=child.localName;
+            return child.localName;
 
         };
 
 
-
-        // Internal. Intentionally not documented.
-        WfsCapabilities.prototype.assembleHttp100 = function (element, dcpType) {
+    WfsCapabilities.prototype.assembleHttp100 = function (element, dcpType) {
             var children = element.children || element.childNodes;
-
             for (var c = 0; c < children.length; c++) {
                 var child = children[c];
-
                 if (child.localName === "HTTP") {
                     return this.assembleMethod100(child, dcpType);
                 }
             }
         };
 
-        // Internal. Intentionally not documented.
-        WfsCapabilities.prototype.assembleMethod100 = function (element, dcpType) {
-            var children = element.children || element.childNodes;
 
+    WfsCapabilities.prototype.assembleMethod100 = function (element, dcpType) {
+            var children = element.children || element.childNodes;
             for (var c = 0; c < children.length; c++) {
                 var child = children[c];
-
                 if (child.localName === "Get") {
                     dcpType["get"] = this.assembleOnlineResource100(child);
                 } else if (child.localName === "Post") {
                     dcpType["post"] = this.assembleOnlineResource100(child);
                 }
-
             }
         };
 
-        // Internal. Intentionally not documented.
-        WfsCapabilities.prototype.assembleOnlineResource100 = function (element) {
 
-                return element.getAttribute("onlineResource");
-                            };
+    WfsCapabilities.prototype.assembleOnlineResource100 = function (element) {
+
+           return element.getAttribute("onlineResource");
+                    };
 
 
 

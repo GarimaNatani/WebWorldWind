@@ -112,7 +112,7 @@ define([
         });
 
 
-        describe("Filter_Capabilities", function () {
+       describe("Filter_Capabilities", function () {
 
             it("should have Constraint ImplementsQuery", function () {
                 var wfsCaps = new WfsCapabilities(xmlDom);
@@ -120,7 +120,8 @@ define([
                expect(name).toBe("ImplementsQuery");
             });
         });
-        describe("Filter_Capabilities", function () {
+
+       describe("Filter_Capabilities", function () {
 
             it("should have Id_Capabilities", function () {
                 var wfsCaps = new WfsCapabilities(xmlDom);
@@ -128,6 +129,7 @@ define([
                 expect(name).toBe("fes:ResourceId");
             });
         });
+
         describe("Scalar_Capabilities", function () {
 
             it("should have ComparisonOperators as PropertyIsLessThan", function () {
@@ -136,6 +138,7 @@ define([
                 expect(name).toBe("PropertyIsLessThan");
             });
         });
+
         describe("Spatial_Capabilities", function () {
 
             it("should have GeometryOperands as gml:MultiLineString", function () {
@@ -144,6 +147,7 @@ define([
                 expect(name).toBe("gml:MultiLineString");
             });
         });
+
         describe("Temporal_Capabilities", function () {
 
             it("should have TemporalOperand", function () {
@@ -152,6 +156,7 @@ define([
                 expect(name).toBe("gml:TimeInstant");
             });
         });
+
         describe("Functions", function () {
 
             it("should have Argument coverageB", function () {
@@ -161,6 +166,7 @@ define([
                 expect(name).toBe("coverageB");
             });
         });
+
         describe("Functions2", function () {
 
             it("should have return type", function () {
@@ -206,8 +212,6 @@ define([
             it("should have title My GeoServer WFS", function () {
                 var wfsCaps = new WfsCapabilities(xmlDom);
                 var title = wfsCaps.Service.Name;
-           //     console.log(title);
-
                 expect(title).toBe('My GeoServer WFS');
             });
         });
@@ -221,7 +225,6 @@ define([
             });
         });
 
-
         describe("FeatureTypeList", function () {
 
             it("should have operator as Query", function () {
@@ -230,12 +233,12 @@ define([
                 expect(title).toBe("Query");
             });
         });
+
         describe("FeatureTypeList2", function () {
 
             it("should have keywords as AUT_75m_binConnectivity_10km_5km_3km_2_km_1km", function () {
                 var wfsCaps = new WfsCapabilities(xmlDom);
                 var title = wfsCaps.FeatureType[0].Keywords.keywords;
-              //  console.log(title);
                 expect(title).toBe("features, AUT_75m_binConnectivity_10km_5km_3km_2_km_1km");
             });
         });
@@ -245,7 +248,6 @@ define([
             it("should have Spatial_Operators as Disjoint", function () {
                 var wfsCaps = new WfsCapabilities(xmlDom);
                 var title = wfsCaps.Spatial_Capabilities.spop.name[0];
-                 console.log(title);
                 expect(title).toBe("Disjoint");
             });
         });
@@ -287,19 +289,15 @@ define([
             expect(version).toBe("1.1.0");
         });
 
-
-
-    describe("Service Identification", function () {
-
+        describe("Service Identification", function () {
         it("should have title My GeoServer WFS", function () {
             var wfsCaps = new WfsCapabilities(xmlDom);
             var title = wfsCaps.serviceWfsIdentification.titles[0].value;
-
             expect(title).toBe('My GeoServer WFS');
+            });
         });
-    });
-        describe("Filter_Capabilities", function () {
 
+        describe("Filter_Capabilities", function () {
             it("should have GeometryOperand as gml:Envelope", function () {
                 var wfsCaps = new WfsCapabilities(xmlDom);
                 var name = wfsCaps.Filter_Capabilities.assSpCap.geop.attributeName[0];
@@ -307,17 +305,15 @@ define([
             });
         });
 
-        describe("Filter_Capabilities2", function () {
-
-            it("should have SpatialOperators as Beyond", function () {
+        describe("WGS84BoundingBox", function () {
+            it("should have one of the value as 21.8087501525879", function () {
                 var wfsCaps = new WfsCapabilities(xmlDom);
-                var name = wfsCaps.Filter_Capabilities.assSpCap.spop.attributeName[3];
-                expect(name).toBe("Beyond");
+                var name = wfsCaps.FeatureType[2].wgs84BoundingBox.lowerCorner[0];
+                expect(name).toBe(21.8087501525879);
             });
         });
 
-        describe("Filter_Capabilities2", function () {
-
+        describe("Spatial_Capabilities", function () {
             it("should have FunctionNames as abs", function () {
                 var wfsCaps = new WfsCapabilities(xmlDom);
                 var name = wfsCaps.Filter_Capabilities.assCap.ArithmeticOperators.functions.functionName[0].name;
