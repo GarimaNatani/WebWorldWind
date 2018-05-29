@@ -132,28 +132,13 @@ define([
             return result;
         };
         OwsWfsOperationsMetadata.prototype.assembleParameterVal  = function (element) {
-            var children = element.children || element.childNodes;
+            var children = element.children || element.childNodes, parVal={};
+            parVal.name = element.getAttribute("name");
             for (var c = 0; c < children.length; c++) {
                 var child = children[c];
-
-                if (child.getAttribute(name) === "AcceptVersions") {
-                       this.AcceptVersions = new OwsWfsConstraint(child);
-                }
-
-                       else if (child.getAttribute(name) === "AcceptFormats")
-                    {
-                        this.AcceptFormats = new OwsWfsConstraint(child);
-                    }
-
-                else if (child.getAttribute(name) === "OutputFormats")
-                {
-                    this.OutputFormats = new OwsWfsConstraint(child);
-                }
-                else if (child.getAttribute(name) === "resultType")
-                {
-                    this.resultType = new OwsWfsConstraint(child);
-                }
-               }
+                parVal.allowedValues = new OwsWfsConstraint(child);
+            }
+            return parVal;
           };
 
         return OwsWfsOperationsMetadata;

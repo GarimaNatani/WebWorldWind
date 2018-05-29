@@ -37,6 +37,7 @@ define([
             xhr.addEventListener('load', function () {
                 if (xhr.readyState === 4) {
                     if (xhr.status === 200) {
+                        //console.log(xhr.responseXML);
                         xmlDom = xhr.responseXML;
                         done();
                     } else {
@@ -101,77 +102,76 @@ define([
             });
         });
 
-      /*  describe("FeatureTypeList", function () {
+       describe("FeatureTypeList", function () {
 
-            it("should have FeatureType eonode:zwe_adm0", function () {
+            it("should have Keywords AUT_75m_binConnectivity_10km_5km_3km_2_km_1km", function () {
                 var wfsCaps = new WfsCapabilities(xmlDom);
-                var name = wfsCaps.FeatureType[0].name;
-               // console.log(name);
-             //   expect(name).toBe(name);
-               expect(name).toBe("geonode:AUT_75m_binConnectivity_10km_5km_3km_2_km_1km");
+                var name = wfsCaps.FeatureType[0].Keywords.keywords[1].value;
+                expect(name).toBe("AUT_75m_binConnectivity_10km_5km_3km_2_km_1km");
             });
-        });*/
+        });
+
+
+        describe("Filter_Capabilities", function () {
+
+            it("should have Constraint ImplementsQuery", function () {
+                var wfsCaps = new WfsCapabilities(xmlDom);
+                var name = wfsCaps.Filter_Capabilities.conformance.constraints[0].name;
+               expect(name).toBe("ImplementsQuery");
+            });
+        });
+        describe("Filter_Capabilities", function () {
+
+            it("should have Id_Capabilities", function () {
+                var wfsCaps = new WfsCapabilities(xmlDom);
+                var name = wfsCaps.Filter_Capabilities.idCap.resourceIdentifierName[0];
+                expect(name).toBe("fes:ResourceId");
+            });
+        });
+        describe("Scalar_Capabilities", function () {
+
+            it("should have ComparisonOperators as PropertyIsLessThan", function () {
+                var wfsCaps = new WfsCapabilities(xmlDom);
+                var name = wfsCaps.Filter_Capabilities.assCap.ComparisonOperators.attributeName[0];
+                expect(name).toBe("PropertyIsLessThan");
+            });
+        });
+        describe("Spatial_Capabilities", function () {
+
+            it("should have GeometryOperands as gml:MultiLineString", function () {
+                var wfsCaps = new WfsCapabilities(xmlDom);
+                var name = wfsCaps.Filter_Capabilities.assSpCap.geop.attributeName[4];
+                expect(name).toBe("gml:MultiLineString");
+            });
+        });
+        describe("Temporal_Capabilities", function () {
+
+            it("should have TemporalOperand", function () {
+                var wfsCaps = new WfsCapabilities(xmlDom);
+                var name = wfsCaps.Filter_Capabilities.temporalCap.temporalOperands.attributeName[0];
+                expect(name).toBe("gml:TimeInstant");
+            });
+        });
+        describe("Functions", function () {
+
+            it("should have Argument coverageB", function () {
+                var wfsCaps = new WfsCapabilities(xmlDom);
+                var name = wfsCaps.Filter_Capabilities.func.subChild[5].funcArg.name[1];
+              //  console.log(name);
+                expect(name).toBe("coverageB");
+            });
+        });
+        describe("Functions2", function () {
+
+            it("should have return type", function () {
+                var wfsCaps = new WfsCapabilities(xmlDom);
+                var name = wfsCaps.Filter_Capabilities.func.subChild[5].retValue;
+                expect(name).toBe("xs:string");
+            });
+        });
+
     });
 
-
-
-      //  describe("Operations Metadata", function () {
-
-        //    it("should have a GET GetFeature link defined", function () {
-       //         var wfsCaps = new wfsCapabilities(xmlDom);
-
-      //      var url = wfsCaps.operationsMetadata.getOperationMetadataByName("GetFeature").dcp[0].getMethods[0].url;
-
-//                expect(url).toBe("http://localhost:8080/geoserver/wfs?");
-  //          });
-    //    });
-/*
-        describe("Service Metadata", function () {
-
-            it("should have seven supported formats", function () {
-                var wfsCaps = new wfsCapabilities(xmlDom);
-
-                var formatsSupported = wfsCaps.serviceMetadata.formatsSupported.length;
-
-                expect(formatsSupported).toBe(7);
-            });
-
-            it("should suport image/tiff as the sixth format", function () {
-                var wfsCaps = new wfsCapabilities(xmlDom);
-
-                var imageTiffFormat = wfsCaps.serviceMetadata.formatsSupported[5];
-
-                expect(imageTiffFormat).toBe("image/tiff");
-            });
-
-            it("should include 5841 supported crs", function () {
-                var wfsCaps = new wfsCapabilities(xmlDom);
-
-                var supportedCrsCount = wfsCaps.serviceMetadata.extension.crsSupported.length;
-
-                expect(supportedCrsCount).toBe(5841);
-            });
-
-            it("should include three supported interpolation methods", function () {
-                var wfsCaps = new wfsCapabilities(xmlDom);
-
-                var supportedInterpolationMethods = wfsCaps.serviceMetadata.extension.interpolationSupported.length;
-
-                expect(supportedInterpolationMethods).toBe(3);
-            });
-        });
-
-        describe("Contents", function () {
-
-            it("should provide a FeatureId of testing__pacificnw_usgs_ned_10m", function () {
-                var wfsCaps = new wfsCapabilities(xmlDom);
-
-                var FeatureId = wfsCaps.Features[1].FeatureId;
-
-                expect(FeatureId).toBe("testing__pacificnw_usgs_ned_10m");
-            });
-        });
-    }); */
 
     describe("wfs 1.0.0 Capabilities Parsing", function () {
         var xmlDom;
@@ -201,111 +201,129 @@ define([
             expect(version).toBe("1.0.0");
         });
 
-/*        it("should have a update sequence of 5", function () {
-            var wfsCaps = new wfsCapabilities(xmlDom);
+        describe("Service Identification", function () {
 
-            var updateSequence = wfsCaps.updateSequence;
+            it("should have title My GeoServer WFS", function () {
+                var wfsCaps = new WfsCapabilities(xmlDom);
+                var title = wfsCaps.Service.Name;
+           //     console.log(title);
 
-            expect(updateSequence).toBe("11");
-        });
-
-        describe("Features", function () {
-
-            it("should provide a name of testing:pacificnw_usgs_ned_10m", function () {
-                var wfsCaps = new wfsCapabilities(xmlDom);
-
-                var name = wfsCaps.Features[1].name;
-
-                expect(name).toBe("testing:pacificnw_usgs_ned_10m");
-            });
-
-            it("should have a bounding box with the correct order", function () {
-                var wfsCaps = new wfsCapabilities(xmlDom);
-
-                // determine the lowest longitude value and ensure that coordinate is specified first in the bounding box
-                var lowerValue = parseFloat(wfsCaps.Features[0].wgs84BoundingBox.lowerCorner.split(/\s+/)[0]);
-                var upperValue = parseFloat(wfsCaps.Features[0].wgs84BoundingBox.upperCorner.split(/\s+/)[0]);
-
-                expect(lowerValue).toBeLessThan(upperValue);
-            });
-        });
-
-        describe("Service", function () {
-
-            it("should have the wfs name", function () {
-                var wfsCaps = new wfsCapabilities(xmlDom);
-
-                var name = wfsCaps.service.name;
-
-                expect(name).toBe("wfs");
-            });
-
-            it("should have NONE fees", function () {
-                var wfsCaps = new wfsCapabilities(xmlDom);
-
-                var fees = wfsCaps.service.fees;
-
-                expect(fees).toBe("NONE");
-            });
-
-            it("should have NONE accessConstraints", function () {
-                var wfsCaps = new wfsCapabilities(xmlDom);
-
-                var accessContraints = wfsCaps.service.accessConstraints[0];
-
-                expect(accessContraints).toBe("NONE");
+                expect(title).toBe('My GeoServer WFS');
             });
         });
 
         describe("Capability", function () {
 
-            it("should have a get capabilities GET url of http://localhost:8080/geoserver/wfs?", function () {
-                var wfsCaps = new wfsCapabilities(xmlDom);
-
-                var getCapabilitiesUrl = wfsCaps.capability.request.getCapabilities.get;
-
-                expect(getCapabilitiesUrl).toBe("http://localhost:8080/geoserver/wfs?");
+            it("should have request url", function () {
+                var wfsCaps = new WfsCapabilities(xmlDom);
+                var title = wfsCaps.capability.request.getCapabilities.get;
+                expect(title).toBe("https://urban-tep.eo.esa.int/puma/wfs?request=GetCapabilities");
             });
+        });
 
-            it("should have a get capabilities POST url of http://localhost:8080/geoserver/wfs?", function () {
-                var wfsCaps = new wfsCapabilities(xmlDom);
 
-                var getCapabilitiesUrl = wfsCaps.capability.request.getCapabilities.post;
+        describe("FeatureTypeList", function () {
 
-                expect(getCapabilitiesUrl).toBe("http://localhost:8080/geoserver/wfs?");
+            it("should have operator as Query", function () {
+                var wfsCaps = new WfsCapabilities(xmlDom);
+                var title = wfsCaps.operations[0];
+                expect(title).toBe("Query");
             });
+        });
+        describe("FeatureTypeList2", function () {
 
-            it("should have a describe Feature GET url of http://localhost:8080/geoserver/wfs?", function () {
-                var wfsCaps = new wfsCapabilities(xmlDom);
-
-                var describeFeatureUrl = wfsCaps.capability.request.describeFeature.get;
-
-                expect(describeFeatureUrl).toBe("http://localhost:8080/geoserver/wfs?");
+            it("should have keywords as AUT_75m_binConnectivity_10km_5km_3km_2_km_1km", function () {
+                var wfsCaps = new WfsCapabilities(xmlDom);
+                var title = wfsCaps.FeatureType[0].Keywords.keywords;
+              //  console.log(title);
+                expect(title).toBe("features, AUT_75m_binConnectivity_10km_5km_3km_2_km_1km");
             });
+        });
 
-            it("should have a describe Feature POST url of http://localhost:8080/geoserver/wfs?", function () {
-                var wfsCaps = new wfsCapabilities(xmlDom);
+        describe("Spatial_Capabilities", function () {
 
-                var describeFeatureUrl = wfsCaps.capability.request.describeFeature.post;
-
-                expect(describeFeatureUrl).toBe("http://localhost:8080/geoserver/wfs?");
+            it("should have Spatial_Operators as Disjoint", function () {
+                var wfsCaps = new WfsCapabilities(xmlDom);
+                var title = wfsCaps.Spatial_Capabilities.spop.name[0];
+                 console.log(title);
+                expect(title).toBe("Disjoint");
             });
+        });
 
-            it("should have a get Feature GET url of http://localhost:8080/geoserver/wfs?", function () {
-                var wfsCaps = new wfsCapabilities(xmlDom);
+        describe("Scalar_Capabilities", function () {
 
-                var getFeatureUrl = wfsCaps.capability.request.getFeature.get;
-
-                expect(getFeatureUrl).toBe("http://localhost:8080/geoserver/wfs?");
+            it("should have Spatial_Operators as Disjoint", function () {
+                var wfsCaps = new WfsCapabilities(xmlDom);
+                var title = wfsCaps.Scalar_Capabilities.Arithmetic_Operators.functions.functionName[0].name;
+               expect(title).toBe("abs");
             });
-
-            it("should have a get Feature POST url of http://localhost:8080/geoserver/wfs?", function () {
-                var wfsCaps = new wfsCapabilities(xmlDom);
-
-                var getFeatureUrl = wfsCaps.capability.request.getFeature.post;
-
-                expect(getFeatureUrl).toBe("http://localhost:8080/geoserver/wfs?");
-            });
-        });*/
+        });
     });
-});
+
+    describe("wfs 1.1.0 Capabilities Parsing", function () {
+
+       var xmlDom;
+
+        beforeAll(function (done) {
+            var xhr = new XMLHttpRequest();
+            xhr.open("GET", "../base/test/ogc/wfs/wfs110GetCapabilities.xml", true);
+            xhr.addEventListener('load', function () {
+                if (xhr.readyState === 4) {
+                    if (xhr.status === 200) {
+                        //console.log(xhr.responseXML);
+                        xmlDom = xhr.responseXML;
+                        done();
+                    } else {
+                        done("Test wfs Capabilities Retrieval Error: " + xhr.statusText);
+                    }
+                }
+            });
+            xhr.send(null);
+        });
+
+        it("should have a 1.1.0 version", function () {
+            var wfsCaps = new WfsCapabilities(xmlDom);
+            var version = wfsCaps.version;
+            expect(version).toBe("1.1.0");
+        });
+
+
+
+    describe("Service Identification", function () {
+
+        it("should have title My GeoServer WFS", function () {
+            var wfsCaps = new WfsCapabilities(xmlDom);
+            var title = wfsCaps.serviceWfsIdentification.titles[0].value;
+
+            expect(title).toBe('My GeoServer WFS');
+        });
+    });
+        describe("Filter_Capabilities", function () {
+
+            it("should have GeometryOperand as gml:Envelope", function () {
+                var wfsCaps = new WfsCapabilities(xmlDom);
+                var name = wfsCaps.Filter_Capabilities.assSpCap.geop.attributeName[0];
+                expect(name).toBe("gml:Envelope");
+            });
+        });
+
+        describe("Filter_Capabilities2", function () {
+
+            it("should have SpatialOperators as Beyond", function () {
+                var wfsCaps = new WfsCapabilities(xmlDom);
+                var name = wfsCaps.Filter_Capabilities.assSpCap.spop.attributeName[3];
+                expect(name).toBe("Beyond");
+            });
+        });
+
+        describe("Filter_Capabilities2", function () {
+
+            it("should have FunctionNames as abs", function () {
+                var wfsCaps = new WfsCapabilities(xmlDom);
+                var name = wfsCaps.Filter_Capabilities.assCap.ArithmeticOperators.functions.functionName[0].name;
+                expect(name).toBe("abs");
+            });
+        });
+
+    });
+    });

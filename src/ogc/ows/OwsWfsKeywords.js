@@ -32,13 +32,18 @@ define([
                     Logger.logMessage(Logger.LEVEL_SEVERE, "OwsKeywords", "constructor", "missingDomElement"));
             }
 
+           //   console.log(element.localName);
             var children = element.children || element.childNodes;
-            for (var c = 0; c < children.length; c++) {
-                var child = children[c];
+            if(children.length===1){
+                this.keywords =element.textContent;}
 
-                if (child.localName === "keyword") {
-                    this.keywords = this.keywords || [];
-                    this.keywords.push(new OwsLanguageString(child));
+                else{
+                for (var c = 0; c < children.length; c++) {
+                    var child = children[c];
+                    if (child.localName === "keyword" || child.localName === "Keyword") {
+                        this.keywords = this.keywords || [];
+                        this.keywords.push(new OwsLanguageString(child));
+                    }
                 }
             }
         };

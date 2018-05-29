@@ -37,11 +37,12 @@ define([
          */
         var OwsWfsConstraint = function (element) {
             if (!element) {
-                throw new ArgumentError(
-                    Logger.logMessage(Logger.LEVEL_SEVERE, "OwsWfsConstraint", "constructor", "missingDomElement"));
+                throw new ArgumentError(  Logger.logMessage(Logger.LEVEL_SEVERE, "OwsWfsConstraint", "constructor", "missingDomElement"));
             }
-
-           this.name = element.getAttribute("name");
+            //console.log(element);
+              if(element.hasAttribute("name")) {
+                  this.name = element.getAttribute("name");
+              }
 
             var children = element.children || element.childNodes;
 //            console.log(children.length);
