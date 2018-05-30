@@ -52,13 +52,12 @@ define([
                     this.operation.push(OwsWfsOperationsMetadata.prototype.assembleOperation(child));
                 }
                 else if (child.localName === "Constraint") {
-                        this.Constraint = this.Constraint || [];
-                         this.Constraint.push(new OwsWfsConstraint(child));
-                    }
-                             }
+                    this.Constraint = this.Constraint || [];
+                    this.Constraint.push(new OwsWfsConstraint(child));
+                }
+            }
 
         };
-
 
 
         OwsWfsOperationsMetadata.prototype.assembleOperation = function (element) {
@@ -131,15 +130,15 @@ define([
 
             return result;
         };
-        OwsWfsOperationsMetadata.prototype.assembleParameterVal  = function (element) {
-            var children = element.children || element.childNodes, parVal={};
+        OwsWfsOperationsMetadata.prototype.assembleParameterVal = function (element) {
+            var children = element.children || element.childNodes, parVal = {};
             parVal.name = element.getAttribute("name");
             for (var c = 0; c < children.length; c++) {
                 var child = children[c];
                 parVal.allowedValues = new OwsWfsConstraint(child);
             }
             return parVal;
-          };
+        };
 
         return OwsWfsOperationsMetadata;
     });

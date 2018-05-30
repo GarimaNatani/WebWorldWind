@@ -37,19 +37,19 @@ define([
          */
         var OwsWfsConstraint = function (element) {
             if (!element) {
-                throw new ArgumentError(  Logger.logMessage(Logger.LEVEL_SEVERE, "OwsWfsConstraint", "constructor", "missingDomElement"));
+                throw new ArgumentError(Logger.logMessage(Logger.LEVEL_SEVERE, "OwsWfsConstraint", "constructor", "missingDomElement"));
             }
             //console.log(element);
-              if(element.hasAttribute("name")) {
-                  this.name = element.getAttribute("name");
-              }
+            if (element.hasAttribute("name")) {
+                this.name = element.getAttribute("name");
+            }
 
             var children = element.children || element.childNodes;
 //            console.log(children.length);
             for (var c = 0; c < children.length; c++) {
                 var child = children[c];
-              if (child.localName === "AllowedValues") {
-                   var childrenValues = child.children || child.childNodes;
+                if (child.localName === "AllowedValues") {
+                    var childrenValues = child.children || child.childNodes;
                     for (var cc = 0; cc < childrenValues.length; cc++) {
                         if (childrenValues[cc].localName === "Value") {
                             this.allowedValues = this.allowedValues || [];
@@ -57,7 +57,7 @@ define([
                         }
                     }
                 } else if (child.localName === "DefaultValue") {
-                  // console.log("DefaultValue");
+                    // console.log("DefaultValue");
                     //console.log(this.child.textContent);
                     this.defaultValue = child.textContent;
                     //console.log(this.defaultValue);

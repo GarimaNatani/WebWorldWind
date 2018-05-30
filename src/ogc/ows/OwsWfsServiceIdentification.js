@@ -54,7 +54,7 @@ define([
                     this.serviceType = child.textContent;
                 } else if (child.localName === "ServiceTypeVersion") {
                     this.serviceTypeVersion = child.textContent;
-                  } else if (child.localName === "Fees") {
+                } else if (child.localName === "Fees") {
                     this.fees = child.textContent;
                 } else if (child.localName === "AccessConstraints") {
                     this.accessConstraints = this.accessConstraints || [];
