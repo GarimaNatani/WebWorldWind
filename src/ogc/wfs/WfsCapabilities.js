@@ -82,6 +82,12 @@ define([
             }
         };
 
+        /**
+         * It assemble Get Capability request for version 1.0.0
+         @param root Root element of Capability request
+         @private
+         @returns null
+         */
         WfsCapabilities.prototype.assembleDocument100 = function (root) {
             var children = root.children || root.childNodes;
             for (var c = 0; c < children.length; c++) {
@@ -93,11 +99,16 @@ define([
                 } else if (child.localName === "FeatureTypeList") {
                     this.assembleFeatureType(child);
                 } else if (child.localName === "Filter_Capabilities") {
-                    this.Filter_Capabilities = this.assembleContents100(child);
+                    this.filterCapabilities = this.assembleContents100(child);
                 }
             }
         };
-
+        /**
+         * It assemble Get Capability request for version 2.0.0 and 1.0.0
+         @param root Root element of Capability request
+         @private
+         @returns null
+         */
         WfsCapabilities.prototype.assembleDocument200x = function (root) {
             var children = root.children || root.childNodes;
             for (var c = 0; c < children.length; c++) {
@@ -111,47 +122,73 @@ define([
                 } else if (child.localName === "FeatureTypeList") {
                     this.assembleFeatureType(child);
                 } else if (child.localName === "Filter_Capabilities") {
-                    this.Filter_Capabilities = this.assembleFilterCapabilities(child);
+                    this.filterCapabilities = this.assembleFilterCapabilities(child);
                 }
             }
         };
 
+        /**
+         * It assemble Feature Type List
+         @param element FeatureTypeList
+         @private
+         @returns null
+         */
 
         WfsCapabilities.prototype.assembleFeatureType = function (element) {
             var children = element.children || element.childNodes;
             for (var c = 0; c < children.length; c++) {
                 var child = children[c];
                 if (child.localName === "FeatureType") {
-                    this.FeatureType = this.FeatureType || [];
-                    this.FeatureType.push(this.assembleFeatureTypeAttributes(child));
+                    this.featureType = this.featureType || [];
+                    this.featureType.push(this.assembleFeatureTypeAttributes(child));
                 } else if (child.localName === "Operations") {
                     this.Operations = this.assembleOperations100(child);
                 }
             }
         };
 
+        /**
+         * It assembles Operation for version 1.0.0
+         @param element Operations
+         @private
+         @returns null
+         */
         WfsCapabilities.prototype.assembleOperations100 = function (element) {
-            var operations = [];
+
             var children = element.children || element.childNodes;
             for (var c = 0; c < children.length; c++) {
                 var child = children[c];
                 this.operations = this.operations || []
                 this.operations.push(child.localName);
             }
-            return operations;
+
         };
 
+
+        /**
+         * It assembles Filter_Capabilities
+         @param element Filter_Capabilities
+         @private
+         @returns null
+         */
         WfsCapabilities.prototype.assembleContents100 = function (element) {
             var children = element.children || element.childNodes;
             for (var c = 0; c < children.length; c++) {
                 var child = children[c];
                 if (child.localName === "Spatial_Capabilities") {
-                    this.Spatial_Capabilities = this.assembleSpatialCapabilities(child);
+                    this.spatialCapabilities = this.assembleSpatialCapabilities(child);
                 } else if (child.localName === "Scalar_Capabilities") {
-                    this.Scalar_Capabilities = this.assembleScalarCapabilities(child);
+                    this.scalarCapabilities = this.assembleScalarCapabilities(child);
                 }
             }
         };
+
+        /**
+         * It assembles SpatialCapabilities
+         @param element Spatial_Capabilities
+         @private
+         @returns spatialCap object
+         */
 
         WfsCapabilities.prototype.assembleSpatialCapabilities = function (element) {
             var children = element.children || element.childNodes, spatialCap = {};
@@ -168,6 +205,12 @@ define([
             return spatialCap;
         };
 
+        /**
+         * It assembles Spatial_Operators
+         @param element Spatial_Operators
+         @private
+         @returns Operator
+         */
         WfsCapabilities.prototype.assembleOperator100 = function (element) {
             var Operator = [];
             var children = element.children || element.childNodes;
@@ -179,41 +222,60 @@ define([
             return Operator;
         };
 
+        /**
+         * It assembles Scalar_Capabilities
+         @param element Scalar_Capabilities
+         @private
+         @returns scalarCap object
+         */
+
         WfsCapabilities.prototype.assembleScalarCapabilities = function (element) {
 
             var children = element.children || element.childNodes, scalarCap = {};
             for (var c = 0; c < children.length; c++) {
                 var child = children[c];
                 if (child.localName === "Logical_Operators") {
-                    scalarCap.Logical_Operators = child.localName;
+                    scalarCap.logicalOperators = child.localName;
                 } else if (child.localName === "Comparison_Operators") {
-                    scalarCap.Comparison_Operators = this.assembleOperator100(child);
+                    scalarCap.comparison_Operators = this.assembleOperator100(child);
                 } else if (child.localName === "Arithmetic_Operators") {
-                    scalarCap.Arithmetic_Operators = this.assembleArthmeticOperator100(child);
+                    scalarCap.arithmetic_Operators = this.assembleArthmeticOperator(child);
                 } else if (child.localName === "ComparisonOperators") {
-                    scalarCap.ComparisonOperators = this.getOperatorName(child);
+                    scalarCap.comparisonOperators = this.getOperatorName(child);
                 } else if (child.localName === "LogicalOperators") {
-                    scalarCap.LogicalOperators = child.localName;
+                    scalarCap.logicalOperators = child.localName;
                 } else if (child.localName === "ArithmeticOperators") {
-                    scalarCap.ArithmeticOperators = this.assembleArthmeticOperator100(child);
+                    scalarCap.arithmeticOperators = this.assembleArthmeticOperator(child);
                 }
             }
             return scalarCap;
         };
 
-        WfsCapabilities.prototype.assembleArthmeticOperator100 = function (element) {
-            var children = element.children || element.childNodes, Arth = {};
+        /**
+         * It assembles Arthmetic Operator
+         @param element ArithmeticOperators or Arithmetic_Operators
+         @private
+         @returns arithmeticOp object
+         */
+        WfsCapabilities.prototype.assembleArthmeticOperator = function (element) {
+            var children = element.children || element.childNodes, arithmeticOp = {};
             for (var c = 0; c < children.length; c++) {
                 var child = children[c];
                 if (child.localName === "Simple_Arithmetic") {
-                    Arth.simpleArithmetic = child.localName;
+                    arithmeticOp.simpleArithmetic = child.localName;
                 } else if (child.localName === "Functions") {
-                    Arth.functions = this.assembleFunction100(child);
+                    arithmeticOp.functions = this.assembleFunction100(child);
                 }
             }
-            return Arth;
+            return arithmeticOp;
         };
 
+        /**
+         * It assembles Functions for version 1.0.0
+         @param element Functions
+         @private
+         @returns func{functionName} Name of function
+         */
         WfsCapabilities.prototype.assembleFunction100 = function (element) {
             var children = element.children || element.childNodes, func = {};
             var child = children[0];
@@ -226,35 +288,48 @@ define([
             return func;
         };
 
+
+        /**
+         * It assembles Functions for version 1.0.0
+         @param element Functions
+         @private
+         @returns func1{} Name of function and no of arguments
+         */
+
         WfsCapabilities.prototype.nameArgument = function (element) {
             var func1 = {};
             func1.name = element.textContent;
             func1.nArgs = element.getAttribute("nArgs");
             return func1;
         };
-
+        /**
+         * It assembles Attributes of Feature Type
+         @param element FeatureType
+         @private
+         @returns FeatureType{}  name,title,keywords,SRS,latLongBoundingBox,abstract,keywordList
+         */
         WfsCapabilities.prototype.assembleFeatureTypeAttributes = function (element) {
             var children = element.children || element.childNodes, FeatureType = {};
             for (var c = 0; c < children.length; c++) {
                 var child = children[c];
                 if (child.localName === "Name") {
-                    FeatureType.Name = child.textContent;
+                    FeatureType.name = child.textContent;
                 } else if (child.localName === "Title") {
-                    FeatureType.Title = child.textContent;
+                    FeatureType.title = child.textContent;
                 } else if (child.localName === "Keywords") {
-                    FeatureType.Keywords = new OwsWfsKeywords(child);
+                    FeatureType.keywords = new OwsWfsKeywords(child);
                 } else if (child.localName === "SRS") {
                     FeatureType.SRS = child.textContent;
                 } else if (child.localName === "LatLongBoundingBox") {
-                    FeatureType.LatLongBoundingBox = this.assembleLatLonBoundingBox(child);
+                    FeatureType.latLongBoundingBox = this.assembleLatLonBoundingBox(child);
                 } else if (child.localName === "Abstract") {
                     FeatureType.abstract = child.textContent;
                 } else if (child.localName === "KeywordList") {
                     FeatureType.keywordList = new OwsWfsKeywords(child);
                 } else if (child.localName === "DefaultCRS") {
-                    FeatureType.DefaultCRS = child.textContent;
+                    FeatureType.defaultCRS = child.textContent;
                 } else if (child.localName === "DefaultSRS") {
-                    FeatureType.DefaultSRS = child.textContent;
+                    FeatureType.defaultSRS = child.textContent;
                 } else if (child.localName === "WGS84BoundingBox") {
                     FeatureType.wgs84BoundingBox = this.assembleBoundingBox(child);
                 }
@@ -262,39 +337,57 @@ define([
             return FeatureType;
         };
 
+        /**
+         * It assembles Latitude and Longitude of BoundingBox
+         @param element FeatureType
+         @private
+         @returns bBox{} minx, miny, maxx, maxy
+         */
         WfsCapabilities.prototype.assembleLatLonBoundingBox = function (bboxElement) {
-            var result = {};
-            result.minx = bboxElement.getAttribute("minx");
-            result.miny = bboxElement.getAttribute("miny");
-            result.maxx = bboxElement.getAttribute("maxx");
-            result.maxy = bboxElement.getAttribute("maxy");
-            return result;
+            var bBox = {};
+            bBox.minx = bboxElement.getAttribute("minx");
+            bBox.miny = bboxElement.getAttribute("miny");
+            bBox.maxx = bboxElement.getAttribute("maxx");
+            bBox.maxy = bboxElement.getAttribute("maxy");
+            return bBox;
         };
 
+        /**
+         * It assembles Service for version 1.0.0
+         @param element FeatureType
+         @private
+         @returns service{} name, title, abstract, keywords, accessConstraints, fees, onlineResource
+         */
         WfsCapabilities.prototype.assembleService100 = function (element) {
             var children = element.children || element.childNodes, service = {};
             for (var c = 0; c < children.length; c++) {
                 var child = children[c];
                 if (child.localName === "Name") {
-                    service.Name = child.textContent;
+                    service.name = child.textContent;
                 } else if (child.localName === "Title") {
-                    service.Title = child.textContent;
+                    service.title = child.textContent;
                 } else if (child.localName === "Abstract") {
-                    service.Abstract = child.textContent;
+                    service.abstract = child.textContent;
                 } else if (child.localName === "Keywords") {
-                    service.Keywords = child.textContent;
+                    service.keywords = child.textContent;
                 } else if (child.localName === "AccessConstraints") {
                     service.accessConstraints = child.textContent;
                 } else if (child.localName === "Fees") {
                     service.fees = child.textContent;
                 } else if (child.localName === "OnlineResource") {
-                    service.OnlineResource = child.textContent;
+                    service.onlineResource = child.textContent;
                 }
             }
 
             return service;
         };
 
+        /**
+         * It assembles Capability for version 1.0.0
+         @param element Capability
+         @private
+         @returns capability{} request
+         */
         WfsCapabilities.prototype.assembleCapability100 = function (element) {
             var children = element.children || element.childNodes, capability = {};
             for (var c = 0; c < children.length; c++) {
@@ -306,28 +399,32 @@ define([
             return capability;
         };
 
+        /**
+         * It assembles RequestCapabilities for version 1.0.0
+         @param element Capability
+         @private
+         @returns request{} name and request element
+         */
         WfsCapabilities.prototype.assembleRequestCapabilities100 = function (element) {
             var children = element.children || element.childNodes, request = {};
             for (var c = 0; c < children.length; c++) {
                 var child = children[c];
-                if (child.localName === "GetCapabilities") {
-                    request.getCapabilities = this.assembleDCPType100(child);
-                } else if (child.localName === "DescribeFeatureType") {
-                    request.describefeature = this.assembleDCPType100(child);
-                } else if (child.localName === "GetFeature") {
-                    request.getfeature = this.assembleDCPType100(child);
-                } else if (child.localName === "Transaction") {
-                    request.transaction = this.assembleDCPType100(child);
-                } else if (child.localName === "LockFeature") {
-                    request.Lockfeature = this.assembleDCPType100(child);
-                } else if (child.localName === "GetFeatureWithLock") {
-                    request.getfeaturewithlock = this.assembleDCPType100(child);
+
+                request.name = request.name || [];
+                request.name.push(child.localName);
+                request.request = request.request || [];
+                request.request.push(this.assembleDCPType100(child));
                 }
-            }
 
             return request;
         };
 
+        /**
+         * It assembles DCP Type for version 1.0.0
+         @param element request tag
+         @private
+         @returns dcpType{}
+         */
         WfsCapabilities.prototype.assembleDCPType100 = function (element) {
             var children = element.children || element.childNodes, dcpType = {};
             for (var c = 0; c < children.length; c++) {
@@ -335,13 +432,20 @@ define([
                 if (child.localName === "DCPType") {
                     this.assembleHttp100(child, dcpType);
                 } else if (child.localName === "ResultFormat") {
-                    dcpType.ResultFormat = this.assembleResultFormat100(child);
+                    dcpType.resultFormat = this.assembleResultFormat100(child);
                 } else if (child.localName === "SchemaDescriptionLanguage") {
-                    dcpType.SchemaDescriptionLanguage = this.assembleSchemaDescriptionLanguage(child);
+                    dcpType.schemaDescriptionLanguage = this.assembleSchemaDescriptionLanguage(child);
                 }
             }
             return dcpType;
         };
+
+        /**
+         * It assembles Result Format for version 1.0.0
+         @param element ResultFormat
+         @private
+         @returns resultFormat{}
+         */
         WfsCapabilities.prototype.assembleResultFormat100 = function (element) {
             var resultFormat = {};
             var children = element.children || element.childNodes;
@@ -529,17 +633,17 @@ define([
 
         WfsCapabilities.prototype.assembleFunctionArguments = function (element) {
 
-            var children = element.children || element.childNodes, Argument = {name: [], type: []};
+            var children = element.children || element.childNodes, argument = {name: [], type: []};
             for (var c = 0; c < children.length; c++) {
                 var child = children[c];
                 if (child.localName === "Argument") {
-                    Argument.name[c] = child.getAttribute("name");
+                    argument.name[c] = child.getAttribute("name");
                     var child1 = child.children || element.childNodes;
                     var child2 = child1[0]
-                    Argument.type[c] = child2.textContent;
+                    argument.type[c] = child2.textContent;
                 }
             }
-            return Argument;
+            return argument;
         };
         return WfsCapabilities;
     });
