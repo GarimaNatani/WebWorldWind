@@ -83,8 +83,8 @@ define([
         };
 
         /**
-         * It assemble Get Capability request for version 1.0.0
-         @param root Root element of Capability request
+         * It assembles Get Capability request for version 1.0.0
+         @param {XmlElement} Root element of Capability request
          @private
          @returns null
          */
@@ -104,8 +104,8 @@ define([
             }
         };
         /**
-         * It assemble Get Capability request for version 2.0.0 and 1.0.0
-         @param root Root element of Capability request
+         * It assembles Get Capability request for version 2.0.0 and 1.0.0
+         @param {XmlElement} Root element of Capability request
          @private
          @returns null
          */
@@ -128,8 +128,8 @@ define([
         };
 
         /**
-         * It assemble Feature Type List
-         @param element FeatureTypeList
+         * It assembles Feature Type List
+         @param {XmlElement} FeatureTypeList
          @private
          @returns null
          */
@@ -149,7 +149,7 @@ define([
 
         /**
          * It assembles Operation for version 1.0.0
-         @param element Operations
+         @param {XmlElement} Operations
          @private
          @returns null
          */
@@ -167,7 +167,7 @@ define([
 
         /**
          * It assembles Filter_Capabilities
-         @param element Filter_Capabilities
+         @param {XmlElement} Filter_Capabilities
          @private
          @returns null
          */
@@ -185,9 +185,9 @@ define([
 
         /**
          * It assembles SpatialCapabilities
-         @param element Spatial_Capabilities
+         @param {XmlElement} Spatial_Capabilities
          @private
-         @returns spatialCap object
+         @returns {Object} spatialCap
          */
 
         WfsCapabilities.prototype.assembleSpatialCapabilities = function (element) {
@@ -207,9 +207,9 @@ define([
 
         /**
          * It assembles Spatial_Operators
-         @param element Spatial_Operators
+         @param {XmlElement} Spatial_Operators
          @private
-         @returns Operator
+         @returns {Object} Operator
          */
         WfsCapabilities.prototype.assembleOperator100 = function (element) {
             var Operator = [];
@@ -224,9 +224,9 @@ define([
 
         /**
          * It assembles Scalar_Capabilities
-         @param element Scalar_Capabilities
+         @param {XmlElement} Scalar_Capabilities
          @private
-         @returns scalarCap object
+         @returns {Object} scalarCap
          */
 
         WfsCapabilities.prototype.assembleScalarCapabilities = function (element) {
@@ -253,9 +253,9 @@ define([
 
         /**
          * It assembles Arthmetic Operator
-         @param element ArithmeticOperators or Arithmetic_Operators
+         @param {XmlElement} ArithmeticOperators or Arithmetic_Operators
          @private
-         @returns arithmeticOp object
+         @returns {Object} arithmeticOp
          */
         WfsCapabilities.prototype.assembleArthmeticOperator = function (element) {
             var children = element.children || element.childNodes, arithmeticOp = {};
@@ -272,9 +272,9 @@ define([
 
         /**
          * It assembles Functions for version 1.0.0
-         @param element Functions
+         @param {XmlElement} Functions
          @private
-         @returns func{functionName} Name of function
+         @returns {Object} Name of function
          */
         WfsCapabilities.prototype.assembleFunction100 = function (element) {
             var children = element.children || element.childNodes, func = {};
@@ -291,7 +291,7 @@ define([
 
         /**
          * It assembles Functions for version 1.0.0
-         @param element Functions
+         @param {XmlElement} Functions
          @private
          @returns func1{} Name of function and no of arguments
          */
@@ -304,9 +304,9 @@ define([
         };
         /**
          * It assembles Attributes of Feature Type
-         @param element FeatureType
+         @param {XmlElement} FeatureType
          @private
-         @returns FeatureType{}  name,title,keywords,SRS,latLongBoundingBox,abstract,keywordList
+         @returns {Object} FeatureType(name,title,keywords,SRS,latLongBoundingBox,abstract,keywordList)
          */
         WfsCapabilities.prototype.assembleFeatureTypeAttributes = function (element) {
             var children = element.children || element.childNodes, FeatureType = {};
@@ -339,9 +339,9 @@ define([
 
         /**
          * It assembles Latitude and Longitude of BoundingBox
-         @param element FeatureType
+         @param {XmlElement} FeatureType
          @private
-         @returns bBox{} minx, miny, maxx, maxy
+         @returns {Object} bBox(minx, miny, maxx, maxy)
          */
         WfsCapabilities.prototype.assembleLatLonBoundingBox = function (bboxElement) {
             var bBox = {};
@@ -354,9 +354,9 @@ define([
 
         /**
          * It assembles Service for version 1.0.0
-         @param element FeatureType
+         @param {XmlElement} FeatureType
          @private
-         @returns service{} name, title, abstract, keywords, accessConstraints, fees, onlineResource
+         @returns {Object} service(name, title, abstract, keywords, accessConstraints, fees, onlineResource)
          */
         WfsCapabilities.prototype.assembleService100 = function (element) {
             var children = element.children || element.childNodes, service = {};
@@ -384,9 +384,9 @@ define([
 
         /**
          * It assembles Capability for version 1.0.0
-         @param element Capability
+         @param {XmlElement} Capability
          @private
-         @returns capability{} request
+         @returns {Object} Capability
          */
         WfsCapabilities.prototype.assembleCapability100 = function (element) {
             var children = element.children || element.childNodes, capability = {};
@@ -401,9 +401,9 @@ define([
 
         /**
          * It assembles RequestCapabilities for version 1.0.0
-         @param element Capability
+         @param {XmlElement} Capability
          @private
-         @returns request{} name and request element
+         @returns {Object) request name and request element
          */
         WfsCapabilities.prototype.assembleRequestCapabilities100 = function (element) {
             var children = element.children || element.childNodes, request = {};
@@ -421,9 +421,9 @@ define([
 
         /**
          * It assembles DCP Type for version 1.0.0
-         @param element request tag
+         @param {XmlElement} request
          @private
-         @returns dcpType{}
+         @returns {Object} dcpType
          */
         WfsCapabilities.prototype.assembleDCPType100 = function (element) {
             var children = element.children || element.childNodes, dcpType = {};
@@ -442,9 +442,9 @@ define([
 
         /**
          * It assembles Result Format for version 1.0.0
-         @param element ResultFormat
+         @param {XmlElement} ResultFormat
          @private
-         @returns resultFormat{}
+         @returns {Object} resultFormat
          */
         WfsCapabilities.prototype.assembleResultFormat100 = function (element) {
             var resultFormat = {};
@@ -456,7 +456,12 @@ define([
             }
             return resultFormat;
         };
-
+        /**
+         * It assembles Result Format for version 1.0.0
+         @param {XmlElement} SchemaDescriptionLanguage
+         @private
+         @returns {String} name of SchemaDescriptionLanguage
+         */
         WfsCapabilities.prototype.assembleSchemaDescriptionLanguage = function (element) {
             var SchemaDescriptionLanguage = {};
             var children = element.children || element.childNodes;
@@ -466,7 +471,12 @@ define([
 
         };
 
-
+        /**
+         * It assembles HTTP for version 1.0.0
+         @param {XmlElement} DCPType
+         @private
+         @returns {function} assembleMethod100
+         */
         WfsCapabilities.prototype.assembleHttp100 = function (element, dcpType) {
             var children = element.children || element.childNodes;
             for (var c = 0; c < children.length; c++) {
@@ -477,7 +487,12 @@ define([
             }
         };
 
-
+        /**
+         * It assembles HTTP for version 1.0.0
+         @param {XmlElement} HTTP
+         @private
+         @returns {function} assembleOnlineResource100
+         */
         WfsCapabilities.prototype.assembleMethod100 = function (element, dcpType) {
             var children = element.children || element.childNodes;
             for (var c = 0; c < children.length; c++) {
@@ -490,13 +505,23 @@ define([
             }
         };
 
-
+        /**
+         * It calculate name of Online Resources for version 1.0.0
+         @param {XmlElement} Get or Post
+         @private
+         @returns {String} name of onlineResource
+         */
         WfsCapabilities.prototype.assembleOnlineResource100 = function (element) {
 
             return element.getAttribute("onlineResource");
         };
 
-
+        /**
+         * It assembles Bounding box
+         @param {XmlElement} WGS84BoundingBox
+         @private
+         @returns {Object} boundingBox
+         */
         WfsCapabilities.prototype.assembleBoundingBox = function (element) {
             var boundingBox = {};
             var children = element.children || element.childNodes;
@@ -514,6 +539,12 @@ define([
             return boundingBox;
         };
 
+        /**
+         * It assembles Filter Capabilities
+         @param {XmlElement} Filter_Capabilities
+         @private
+         @returns {Object} filterCap
+         */
         WfsCapabilities.prototype.assembleFilterCapabilities = function (element) {
             var filterCap = {};
             var children = element.children || element.childNodes;
@@ -541,7 +572,12 @@ define([
             }
             return filterCap;
         };
-
+        /**
+         * It assembles Conformance
+         @param {XmlElement} Conformance
+         @private
+         @returns {Object} Constraints
+         */
         WfsCapabilities.prototype.assembleConformance = function (element) {
             var Constraints = {};
             var children = element.children || element.childNodes, service = {};
@@ -554,7 +590,12 @@ define([
             return Constraints;
         };
 
-
+        /**
+         * It assembles Id Capabilities
+         @param {XmlElement} IdCapabilities
+         @private
+         @returns {Object} ResourceIdentifier
+         */
         WfsCapabilities.prototype.assembleIdCapabilities = function (element) {
 
             var children = element.children || element.childNodes, ResourceIdentifier = {};
@@ -568,7 +609,12 @@ define([
             return ResourceIdentifier;
         };
 
-
+        /**
+         * It assembles gives Names of the children of an element
+         @param {XmlElement} Parent element
+         @private
+         @returns {Object} Operators
+         */
         WfsCapabilities.prototype.getOperatorName = function (element) {
 
             var children = element.children || element.childNodes, Operators = {}, child;
@@ -588,6 +634,12 @@ define([
             return Operators;
         };
 
+        /**
+         * It assembles Temporal Capabilities
+         @param {XmlElement} Temporal_Capabilities
+         @private
+         @returns {Object} Temporal Capabilities
+         */
         WfsCapabilities.prototype.assembleTemporalCapabilities = function (element) {
             var tmpCap = {};
             var children = element.children || element.childNodes;
@@ -603,7 +655,12 @@ define([
             return tmpCap;
         };
 
-
+        /**
+         * It assembles Functions
+         @param {XmlElement} Function
+         @private
+         @returns {Object} Function
+         */
         WfsCapabilities.prototype.assembleFunctions = function (element) {
             var children = element.children || element.childNodes, Function = {Name: [], subChild: []};
             for (var c = 0; c < children.length; c++) {
@@ -615,6 +672,12 @@ define([
             return Function;
         };
 
+        /**
+         * It assembles Functions Sub Childs
+         @param {XmlElement} Function
+         @private
+         @returns {Object} subChild
+         */
         WfsCapabilities.prototype.assembleFunctionsSubChild = function (element) {
             var children = element.children || element.childNodes, subChild = {};
             for (var c = 0; c < children.length; c++) {
@@ -630,7 +693,12 @@ define([
             return subChild;
         };
 
-
+        /**
+         * It assembles Functions Arguments
+         @param {XmlElement} Arguments
+         @private
+         @returns {Object} argument
+         */
         WfsCapabilities.prototype.assembleFunctionArguments = function (element) {
 
             var children = element.children || element.childNodes, argument = {name: [], type: []};
