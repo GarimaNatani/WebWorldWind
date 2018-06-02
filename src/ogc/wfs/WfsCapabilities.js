@@ -42,7 +42,7 @@ define([
          * @constructor
          * @classdesc Represents the common properties of a Wfs Capabilities document. Common properties are parsed and
          * mapped to a plain javascript object model. Most fields can be accessed as properties named according to their
-         * document names converted to camel case. This model supports version 1.0.0 and 2.0.x of the Wfs specification.
+         * document names converted to camel case. This model supports version 1.0.0 ,1.1.0 and 2.0.0 of the Wfs specification.
          * Not all properties are mapped to this representative javascript object model, but the provided XML dom is
          * maintained in xmlDom property for reference.
          * @param {{}} xmlDom an XML DOM representing the Wfs Capabilities document.
@@ -580,7 +580,7 @@ define([
          */
         WfsCapabilities.prototype.assembleConformance = function (element) {
             var Constraints = {};
-            var children = element.children || element.childNodes, service = {};
+            var children = element.children || element.childNodes;
             for (var c = 0; c < children.length; c++) {
                 var child = children[c];
                 Constraints.constraints = Constraints.constraints || [];
