@@ -52,25 +52,47 @@ define([
             this.xmlDom = xmlDom;
 
             this.assembleDocument();
+
+
         };
 
 
         GetFeature.prototype.assembleDocument = function () {
             var root = this.xmlDom.documentElement;
 
+            if (child.localName == "featureMembers") ;
             this.numberMatched = root.getAttribute("numberMatched");
             this.numberReturned = root.getAttribute("numberReturned");
             this.timestamp = root.getAttribute("timeStamp");
 
-            this.member = this.assembleMember(root);
+
+            this.member = this.assembleDocument1(root);
 
         };
 
 
-        GetFeature.prototype.assembleMember = function (element) {
+        GetFeature.prototype.assembleDocument1 = function (element) {
             var member = {}
-            var children1 = element.firstChild;
-            var children = children1.children || children1.childNodes;
+            var children = element.firstChild;
+
+            if (children.localName == "featureMembers") {
+                this.assembleMembers(children);
+            }
+            else if (children1.localName == "FeatureCollection") {
+                this.assembleCollection(children);
+            }
+            else if (children1.localName == "boundedBy") {
+                this.assembleBoundedBy(children);
+                this.assembleMembers(children);
+            }
+
+
+        };
+
+
+        GetFeature.prototype.assembleCollection = function (element) {
+            var member = {};
+            var children = element.children || element.childNodes;
             for (var c = 0; c < children.length; c++) {
                 var child = children[c];
                 member.bugsite = member.bugsite || [];
@@ -78,6 +100,52 @@ define([
             }
             return member;
         };
+
+
+        GetFeature.prototype.assembleMembers = function (element) {
+            var feature = {};
+            var children = element.children || element.childNodes;
+            for (var c = 0; c < children.length; c++) {
+                var child = children[c];
+                feature.feature = feature.feature || [];
+                feature.feature.push(this.assembleFeatures(child));
+            }
+            return feature;
+        };
+
+        GetFeature.prototype.assembleBoundedBy = function (element) {
+            var boundedBy = {};
+            var children = element.children || element.childNodes;
+            for (var c = 0; c < children.length; c++) {
+                var child = children[c];
+
+                boundedBy.boundedBy = boundedBy.boundedBy || [];
+                boundedBy.boundedBy.push(child.textContent);
+            }
+            return boundedBy;
+        };
+        GetFeature.prototype.assembleFeature = function (element) {
+
+            var bugsite = {};
+            bugsite.id = element.getAttribute("gml:id");
+
+            var children = element.children || element.childNodes;
+            for (var c = 0; c < children.length; c++) {
+
+                var child = children[c];
+
+                if (child.localName === "the_geom") {
+                    bugsite.geom = this.assembleGeom(child);
+                } else if (child.localName === "cat") {
+                    bugsite.cat = child.textContent;
+                }
+                else if (child.localName === "str1") {
+                    bugsite.str1 = child.textContent;
+                }
+            }
+            return bugsite
+        };
+
 
         GetFeature.prototype.assembleBugsites = function (element) {
 
