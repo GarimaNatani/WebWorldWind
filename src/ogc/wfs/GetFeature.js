@@ -59,15 +59,20 @@ define([
 
         GetFeature.prototype.assembleDocumentAttribute = function (element) {
 
-            if (root.hasAttribute("numberMatched")) {
+            if (element.hasAttribute("numberMatched")) {
                 this.numberMatched = element.getAttribute("numberMatched");
             }
-            if (root.hasAttribute("numberReturned")) {
+            if (element.hasAttribute("numberReturned")) {
                 this.numberReturned = element.getAttribute("numberReturned");
             }
-            if (root.hasAttribute("timeStamp")) {
+            if (element.hasAttribute("timeStamp")) {
                 this.timestamp = element.getAttribute("timeStamp");
             }
+            if (element.hasAttribute("numberOfFeatures")) {
+                this.numberOfFeatures = element.getAttribute("numberOfFeatures");
+            }
+
+
         };
 
         GetFeature.prototype.assembleDocument = function () {
@@ -77,17 +82,25 @@ define([
             var children = root.children || root.childNodes;
             for (var c = 0; c < children.length; c++) {
                 var child = children[c];
-                if (child.localName == "member") {
+
+                if (child.localName === "member") {
                     this.member = this.member || [];
                     this.member.push(this.assembleMember(child));
                 }
-                else if (child.localName == "featureMembers") {
+                else if (child.localName === "featureMember") {
+
                     this.featureMembers = this.featureMembers || [];
                     this.featureMembers.push(this.assembleFeatureMembers(child));
                 }
-                else if (root.localName == "boundedBy") {
+                else if (child.localName === "featureMembers") {
+
+                    this.featureMembers = this.featureMembers || [];
+                    this.featureMembers.push(this.assembleFeatureMembers(child));
+                }
+                else if (child.localName === "boundedBy") {
                     this.boundedBy = this.boundedBy || [];
                     this.boundedBy.push(this.assembleBoundedBy(child));
+                    // console.log(this.boundedBy);
                 }
             }
         };
@@ -113,13 +126,11 @@ define([
             var children = element.children || element.childNodes;
             for (var c = 0; c < children.length; c++) {
                 var child = children[c];
-                fMember.featureName = child.localName;
-                fMember.id = child.getAttribute("gml:id");
                 fMember.featuresAttributes = fMember.featuresAttributes || [];
                 fMember.featuresAttributes.push(this.assembleFeatureMemberAttributes(child));
 
             }
-            return member;
+            return fMember;
         };
 
         GetFeature.prototype.assembleBoundedBy = function (element) {
@@ -155,11 +166,13 @@ define([
         GetFeature.prototype.assembleFeatureMemberAttributes = function (element) {
 
             var feature = {};
+            feature.featureName = element.nodeName;
+            //   console.log(element);
+            var item = 0;
+            feature.id = element.attributes.item(0).nodeValue;
             var children = element.children || element.childNodes;
             for (var c = 0; c < children.length; c++) {
-
                 var child = children[c];
-
                 if (child.localName === "the_geom") {
                     feature.geom = this.assembleMemberGeom(child);
                 }
@@ -170,6 +183,7 @@ define([
             }
             return feature;
         };
+
         GetFeature.prototype.assembleSubFeatures = function (element) {
             var temp = {};
             temp.name = element.localName
@@ -198,20 +212,44 @@ define([
         GetFeature.prototype.assembleMemberGeom = function (element) {
 
             var geom = {};
-            var children = element.children || element.childNodes;
-            for (var c = 0; c < children.length; c++) {
-                var child = children[c];
-                if (child.localName === "Point") {
-                    geom.srsName = child.getAttribute("srsName");
-                    geom.srsDimension = child.getAttribute("srsDimension");
-                }
-                else if (child.localName === "pos") {
-                    geom.pos = child.textContent;
+            var child = element.firstChild;
+            if (child.localName === "MultiPolygon") {
+                geom.polygonSrsName = child.getAttribute("srsName");
+                var children = child.children || child.childNodes;
+                for (var c = 0; c < children.length; c++) {
+                    var child1 = children[c];
+                    geom.cordList = geom.cordList || [];
+                    geom.cordList.push(this.assembleList(child1));
                 }
             }
-            return geom;
-        };
-        return GetFeature;
-    }
-)
-;
+            else if(child.localName ==="MultiSurface") {
+                geom.surfaceSrsName = child.getAttribute("srsName");
+                var children = child.children || child.childNodes;
+                for (var c = 0; c < children.length; c++) {
+                    var child1 = children[c];
+                    geom.posList = geom.posList || [];
+                    geom.posList.push(this.assembleList(child1));
+                }
+            }
+                return geom;
+            };
+
+            GetFeature.prototype.assembleList = function (element) {
+                var list ={};
+                var child = element.firstChild;
+                while (child != null) {
+
+                    if (child.localName === "coordinates") {
+                        list.cordinates = child.textContent;
+
+                    }
+                    else if (child.localName === "posList") {
+                        list.posList = child.textContent;
+                    }
+                    child = child.firstChild;
+                }
+                return list;
+            };
+            return GetFeature;
+        }
+    );

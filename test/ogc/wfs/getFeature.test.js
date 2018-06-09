@@ -75,4 +75,74 @@ define([
             expect(srsName).toBe("urn:ogc:def:crs:EPSG::26713");
         });
     });
+
+
+    describe("Get Feature Parsing MultiPolygon", function () {
+
+        var xmlDom;
+
+        beforeAll(function (done) {
+            var xhr = new XMLHttpRequest();
+            xhr.open("GET", "../base/test/ogc/wfs/wfsGetFeatureMember.xml", true);
+            xhr.addEventListener('load', function () {
+                if (xhr.readyState === 4) {
+                    if (xhr.status === 200) {
+                        xmlDom = xhr.responseXML;
+                        done();
+                    } else {
+                        done("Test wfs Capabilities Retrieval Error: " + xhr.statusText);
+                    }
+                }
+            });
+            xhr.send(null);
+        });
+
+        it("should have feature name as topp:states", function () {
+            var wfsGetF = new GetFeature(xmlDom);
+            var Id = wfsGetF.featureMembers[0].featuresAttributes[0].featureName;
+            expect(Id).toBe("topp:states");
+        });
+
+        it("should have MultiPolygon srsName as http://www.opengis.net/gml/srs/epsg.xml#4326", function () {
+            var wfsGetF = new GetFeature(xmlDom);
+            var srsName = wfsGetF.featureMembers[0].featuresAttributes[0].geom.polygonSrsName;
+            expect(srsName).toBe("http://www.opengis.net/gml/srs/epsg.xml#4326");
+        });
+    });
+
+
+    describe("Get Feature Parsing MultiSurface", function () {
+
+        var xmlDom;
+
+        beforeAll(function (done) {
+            var xhr = new XMLHttpRequest();
+            xhr.open("GET", "../base/test/ogc/wfs/wfsGetFeatureMemberMultiSurface.xml", true);
+            xhr.addEventListener('load', function () {
+                if (xhr.readyState === 4) {
+                    if (xhr.status === 200) {
+                        xmlDom = xhr.responseXML;
+                        done();
+                    } else {
+                        done("Test wfs Capabilities Retrieval Error: " + xhr.statusText);
+                    }
+                }
+            });
+            xhr.send(null);
+        });
+
+        it("should have feature name as topp:states", function () {
+            var wfsGetF = new GetFeature(xmlDom);
+            var Id = wfsGetF.featureMembers[0].featuresAttributes[0].featureName;
+            expect(Id).toBe("topp:states");
+        });
+
+        it("should have MultiSurface srsName as urn:x-ogc:def:crs:EPSG:4326", function () {
+            var wfsGetF = new GetFeature(xmlDom);
+            var srsName = wfsGetF.featureMembers[0].featuresAttributes[0].geom.surfaceSrsName;
+            expect(srsName).toBe("urn:x-ogc:def:crs:EPSG:4326");
+        });
+    });
+
+
 });
