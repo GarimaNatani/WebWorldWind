@@ -57,60 +57,69 @@ define([
         };
 
 
+        GetFeature.prototype.assembleDocumentAttribute = function (element) {
+
+            if (root.hasAttribute("numberMatched")) {
+                this.numberMatched = element.getAttribute("numberMatched");
+            }
+            if (root.hasAttribute("numberReturned")) {
+                this.numberReturned = element.getAttribute("numberReturned");
+            }
+            if (root.hasAttribute("timeStamp")) {
+                this.timestamp = element.getAttribute("timeStamp");
+            }
+        };
+
         GetFeature.prototype.assembleDocument = function () {
             var root = this.xmlDom.documentElement;
-
-            if (child.localName == "featureMembers") ;
-            this.numberMatched = root.getAttribute("numberMatched");
-            this.numberReturned = root.getAttribute("numberReturned");
-            this.timestamp = root.getAttribute("timeStamp");
-
-
-            this.member = this.assembleDocument1(root);
-
+            this.assembleDocumentAttribute(root);
+            var members = {};
+            var children = root.children || root.childNodes;
+            for (var c = 0; c < children.length; c++) {
+                var child = children[c];
+                if (child.localName == "member") {
+                    this.member = this.member || [];
+                    this.member.push(this.assembleMember(child));
+                }
+                else if (child.localName == "featureMembers") {
+                    this.featureMembers = this.featureMembers || [];
+                    this.featureMembers.push(this.assembleFeatureMembers(child));
+                }
+                else if (root.localName == "boundedBy") {
+                    this.boundedBy = this.boundedBy || [];
+                    this.boundedBy.push(this.assembleBoundedBy(child));
+                }
+            }
         };
 
 
-        GetFeature.prototype.assembleDocument1 = function (element) {
-            var member = {}
-            var children = element.firstChild;
-
-            if (children.localName == "featureMembers") {
-                this.assembleMembers(children);
-            }
-            else if (children1.localName == "FeatureCollection") {
-                this.assembleCollection(children);
-            }
-            else if (children1.localName == "boundedBy") {
-                this.assembleBoundedBy(children);
-                this.assembleMembers(children);
-            }
-
-
-        };
-
-
-        GetFeature.prototype.assembleCollection = function (element) {
+        GetFeature.prototype.assembleMember = function (element) {
             var member = {};
             var children = element.children || element.childNodes;
             for (var c = 0; c < children.length; c++) {
                 var child = children[c];
-                member.bugsite = member.bugsite || [];
-                member.bugsite.push(this.assembleBugsites(child));
+                member.featureName = child.localName;
+                member.id = child.getAttribute("gml:id");
+                member.featuresAttributes = member.featuresAttributes || [];
+                member.featuresAttributes.push(this.assembleFeatureAttributes(child));
+
             }
             return member;
         };
 
 
-        GetFeature.prototype.assembleMembers = function (element) {
-            var feature = {};
+        GetFeature.prototype.assembleFeatureMembers = function (element) {
+            var fMember = {};
             var children = element.children || element.childNodes;
             for (var c = 0; c < children.length; c++) {
                 var child = children[c];
-                feature.feature = feature.feature || [];
-                feature.feature.push(this.assembleFeatures(child));
+                fMember.featureName = child.localName;
+                fMember.id = child.getAttribute("gml:id");
+                fMember.featuresAttributes = fMember.featuresAttributes || [];
+                fMember.featuresAttributes.push(this.assembleFeatureMemberAttributes(child));
+
             }
-            return feature;
+            return member;
         };
 
         GetFeature.prototype.assembleBoundedBy = function (element) {
@@ -118,56 +127,56 @@ define([
             var children = element.children || element.childNodes;
             for (var c = 0; c < children.length; c++) {
                 var child = children[c];
-
                 boundedBy.boundedBy = boundedBy.boundedBy || [];
                 boundedBy.boundedBy.push(child.textContent);
             }
             return boundedBy;
         };
-        GetFeature.prototype.assembleFeature = function (element) {
 
-            var bugsite = {};
-            bugsite.id = element.getAttribute("gml:id");
+        GetFeature.prototype.assembleFeatureAttributes = function (element) {
 
+            var feature = {};
             var children = element.children || element.childNodes;
             for (var c = 0; c < children.length; c++) {
 
                 var child = children[c];
 
                 if (child.localName === "the_geom") {
-                    bugsite.geom = this.assembleGeom(child);
-                } else if (child.localName === "cat") {
-                    bugsite.cat = child.textContent;
+                    feature.geom = this.assembleGeom(child);
                 }
-                else if (child.localName === "str1") {
-                    bugsite.str1 = child.textContent;
+                else {
+                    feature.subFeature = feature.subFeature || [];
+                    feature.subFeature.push(this.assembleSubFeatures(child));
                 }
             }
-            return bugsite
+            return feature;
         };
 
+        GetFeature.prototype.assembleFeatureMemberAttributes = function (element) {
 
-        GetFeature.prototype.assembleBugsites = function (element) {
-
-            var bugsite = {};
-            bugsite.id = element.getAttribute("gml:id");
-
+            var feature = {};
             var children = element.children || element.childNodes;
             for (var c = 0; c < children.length; c++) {
 
                 var child = children[c];
 
                 if (child.localName === "the_geom") {
-                    bugsite.geom = this.assembleGeom(child);
-                } else if (child.localName === "cat") {
-                    bugsite.cat = child.textContent;
+                    feature.geom = this.assembleMemberGeom(child);
                 }
-                else if (child.localName === "str1") {
-                    bugsite.str1 = child.textContent;
+                else {
+                    feature.subFeature = feature.subFeature || [];
+                    feature.subFeature.push(this.assembleSubFeatures(child));
                 }
             }
-            return bugsite
+            return feature;
         };
+        GetFeature.prototype.assembleSubFeatures = function (element) {
+            var temp = {};
+            temp.name = element.localName
+            temp.value = element.textContent;
+            return temp;
+        };
+
 
         GetFeature.prototype.assembleGeom = function (element) {
 
@@ -185,5 +194,24 @@ define([
             }
             return geom;
         };
+
+        GetFeature.prototype.assembleMemberGeom = function (element) {
+
+            var geom = {};
+            var children = element.children || element.childNodes;
+            for (var c = 0; c < children.length; c++) {
+                var child = children[c];
+                if (child.localName === "Point") {
+                    geom.srsName = child.getAttribute("srsName");
+                    geom.srsDimension = child.getAttribute("srsDimension");
+                }
+                else if (child.localName === "pos") {
+                    geom.pos = child.textContent;
+                }
+            }
+            return geom;
+        };
         return GetFeature;
-    });
+    }
+)
+;

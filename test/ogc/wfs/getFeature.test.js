@@ -65,13 +65,13 @@ define([
 
         it("should have bugsite Id 3", function () {
             var wfsGetF = new GetFeature(xmlDom);
-            var bugsiteId = wfsGetF.member.bugsite[0].id;
+            var bugsiteId = wfsGetF.member[0].id;
             expect(bugsiteId).toBe("bugsites.3");
         });
 
         it("should have geom srsName urn:ogc:def:crs:EPSG::26713", function () {
             var wfsGetF = new GetFeature(xmlDom);
-            var srsName = wfsGetF.member.bugsite[0].geom.srsName;
+            var srsName = wfsGetF.member[0].featuresAttributes[0].geom.srsName;
             expect(srsName).toBe("urn:ogc:def:crs:EPSG::26713");
         });
     });
