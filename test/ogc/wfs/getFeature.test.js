@@ -14,15 +14,15 @@
  * limitations under the License.
  */
 define([
-    'src/ogc/wfs/GetFeature'
-], function (GetFeature) {
+    'src/ogc/wfs/WfsGetFeature'
+], function (WfsGetFeature) {
     "use strict";
 
     describe("Constructor testing", function () {
 
         it("should throw an exception when nothing is provided as an argument", function () {
             expect((function () {
-                new GetFeature(null)
+                new WfsGetFeature(null)
             })).toThrow();
         });
     });
@@ -48,7 +48,7 @@ define([
         });
 
         it("should have numberMatched 1", function () {
-            var wfsGetF = new GetFeature(xmlDom);
+            var wfsGetF = new WfsGetFeature(xmlDom);
 
             var numberMatched = wfsGetF.numberMatched;
 
@@ -56,7 +56,7 @@ define([
         });
 
         it("should have timestamp 2018-06-02T10:08:44.847Z", function () {
-            var wfsGetF = new GetFeature(xmlDom);
+            var wfsGetF = new WfsGetFeature(xmlDom);
 
             var timestamp = wfsGetF.timestamp;
 
@@ -64,13 +64,13 @@ define([
         });
 
         it("should have bugsite Id 3", function () {
-            var wfsGetF = new GetFeature(xmlDom);
+            var wfsGetF = new WfsGetFeature(xmlDom);
             var bugsiteId = wfsGetF.member[0].id;
             expect(bugsiteId).toBe("bugsites.3");
         });
 
         it("should have geom srsName urn:ogc:def:crs:EPSG::26713", function () {
-            var wfsGetF = new GetFeature(xmlDom);
+            var wfsGetF = new WfsGetFeature(xmlDom);
             var srsName = wfsGetF.member[0].featuresAttributes[0].geom.srsName;
             expect(srsName).toBe("urn:ogc:def:crs:EPSG::26713");
         });
@@ -98,13 +98,13 @@ define([
         });
 
         it("should have feature name as topp:states", function () {
-            var wfsGetF = new GetFeature(xmlDom);
+            var wfsGetF = new WfsGetFeature(xmlDom);
             var Id = wfsGetF.featureMembers[0].featuresAttributes[0].featureName;
             expect(Id).toBe("topp:states");
         });
 
         it("should have MultiPolygon srsName as http://www.opengis.net/gml/srs/epsg.xml#4326", function () {
-            var wfsGetF = new GetFeature(xmlDom);
+            var wfsGetF = new WfsGetFeature(xmlDom);
             var srsName = wfsGetF.featureMembers[0].featuresAttributes[0].geom.polygonSrsName;
             expect(srsName).toBe("http://www.opengis.net/gml/srs/epsg.xml#4326");
         });
@@ -132,13 +132,13 @@ define([
         });
 
         it("should have feature name as topp:states", function () {
-            var wfsGetF = new GetFeature(xmlDom);
+            var wfsGetF = new WfsGetFeature(xmlDom);
             var Id = wfsGetF.featureMembers[0].featuresAttributes[0].featureName;
             expect(Id).toBe("topp:states");
         });
 
         it("should have MultiSurface srsName as urn:x-ogc:def:crs:EPSG:4326", function () {
-            var wfsGetF = new GetFeature(xmlDom);
+            var wfsGetF = new WfsGetFeature(xmlDom);
             var srsName = wfsGetF.featureMembers[0].featuresAttributes[0].geom.surfaceSrsName;
             expect(srsName).toBe("urn:x-ogc:def:crs:EPSG:4326");
         });

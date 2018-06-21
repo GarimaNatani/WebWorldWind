@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 /**
- * @exports GetFeature
+ * @exports WfsGetFeature
  */
 
 define([
@@ -29,7 +29,7 @@ define([
 
         /**
          * Constructs an OGC Get Feature instance from an XML DOM.
-         * @alias GetFeature
+         * @alias WfsGetFeature
          * @constructor
          * @classdesc Represents the common properties of a Wfs Capabilities document. Common properties are parsed and
          * mapped to a plain javascript object model. Most fields can be accessed as properties named according to their
@@ -39,10 +39,10 @@ define([
          * @param {{}} xmlDom an XML DOM representing the Wfs Capabilities document.
          * @throws {ArgumentError} If the specified XML DOM is null or undefined.
          */
-        var GetFeature = function (xmlDom) {
+        var WfsGetFeature = function (xmlDom) {
             if (!xmlDom) {
                 throw new ArgumentError(
-                    Logger.logMessage(Logger.LEVEL_SEVERE, "GetFeature", "constructor", "missingDom"));
+                    Logger.logMessage(Logger.LEVEL_SEVERE, "WfsGetFeature", "constructor", "missingDom"));
             }
 
             /**
@@ -57,7 +57,7 @@ define([
         };
 
 
-        GetFeature.prototype.assembleDocumentAttribute = function (element) {
+        WfsGetFeature.prototype.assembleDocumentAttribute = function (element) {
 
             if (element.hasAttribute("numberMatched")) {
                 this.numberMatched = element.getAttribute("numberMatched");
@@ -75,7 +75,7 @@ define([
 
         };
 
-        GetFeature.prototype.assembleDocument = function () {
+        WfsGetFeature.prototype.assembleDocument = function () {
             var root = this.xmlDom.documentElement;
             this.assembleDocumentAttribute(root);
             var members = {};
@@ -106,7 +106,7 @@ define([
         };
 
 
-        GetFeature.prototype.assembleMember = function (element) {
+        WfsGetFeature.prototype.assembleMember = function (element) {
             var member = {};
             var children = element.children || element.childNodes;
             for (var c = 0; c < children.length; c++) {
@@ -121,7 +121,7 @@ define([
         };
 
 
-        GetFeature.prototype.assembleFeatureMembers = function (element) {
+        WfsGetFeature.prototype.assembleFeatureMembers = function (element) {
             var fMember = {};
             var children = element.children || element.childNodes;
             for (var c = 0; c < children.length; c++) {
@@ -133,7 +133,7 @@ define([
             return fMember;
         };
 
-        GetFeature.prototype.assembleBoundedBy = function (element) {
+        WfsGetFeature.prototype.assembleBoundedBy = function (element) {
             var boundedBy = {};
             var children = element.children || element.childNodes;
             for (var c = 0; c < children.length; c++) {
@@ -144,7 +144,7 @@ define([
             return boundedBy;
         };
 
-        GetFeature.prototype.assembleFeatureAttributes = function (element) {
+        WfsGetFeature.prototype.assembleFeatureAttributes = function (element) {
 
             var feature = {};
             var children = element.children || element.childNodes;
@@ -163,7 +163,7 @@ define([
             return feature;
         };
 
-        GetFeature.prototype.assembleFeatureMemberAttributes = function (element) {
+        WfsGetFeature.prototype.assembleFeatureMemberAttributes = function (element) {
 
             var feature = {};
             feature.featureName = element.nodeName;
@@ -184,7 +184,7 @@ define([
             return feature;
         };
 
-        GetFeature.prototype.assembleSubFeatures = function (element) {
+        WfsGetFeature.prototype.assembleSubFeatures = function (element) {
             var temp = {};
             temp.name = element.localName
             temp.value = element.textContent;
@@ -192,7 +192,7 @@ define([
         };
 
 
-        GetFeature.prototype.assembleGeom = function (element) {
+        WfsGetFeature.prototype.assembleGeom = function (element) {
 
             var geom = {};
             var children = element.children || element.childNodes;
@@ -209,7 +209,7 @@ define([
             return geom;
         };
 
-        GetFeature.prototype.assembleMemberGeom = function (element) {
+        WfsGetFeature.prototype.assembleMemberGeom = function (element) {
 
             var geom = {};
             var child = element.firstChild;
@@ -231,25 +231,25 @@ define([
                     geom.posList.push(this.assembleList(child1));
                 }
             }
-                return geom;
-            };
+            return geom;
+        };
 
-            GetFeature.prototype.assembleList = function (element) {
-                var list ={};
-                var child = element.firstChild;
-                while (child != null) {
+        WfsGetFeature.prototype.assembleList = function (element) {
+            var list ={};
+            var child = element.firstChild;
+            while (child != null) {
 
-                    if (child.localName === "coordinates") {
-                        list.cordinates = child.textContent;
+                if (child.localName === "coordinates") {
+                    list.cordinates = child.textContent;
 
-                    }
-                    else if (child.localName === "posList") {
-                        list.posList = child.textContent;
-                    }
-                    child = child.firstChild;
                 }
-                return list;
-            };
-            return GetFeature;
-        }
-    );
+                else if (child.localName === "posList") {
+                    list.posList = child.textContent;
+                }
+                child = child.firstChild;
+            }
+            return list;
+        };
+        return WfsGetFeature;
+    }
+);
