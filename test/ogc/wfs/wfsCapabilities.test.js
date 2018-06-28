@@ -187,8 +187,8 @@ define([
 
             it("should have title My GeoServer WFS", function () {
                 var wfsCaps = new WfsCapabilities(xmlDom);
-                var title = wfsCaps.Service.name;
-                expect(title).toBe('My GeoServer WFS');
+                var servId = wfsCaps.Service.name;
+                expect(servId).toBe('My GeoServer WFS');
             });
         });
 
@@ -196,8 +196,8 @@ define([
 
             it("should have request url", function () {
                 var wfsCaps = new WfsCapabilities(xmlDom);
-                var title = wfsCaps.capability.request.request[0].get;
-                expect(title).toBe("https://urban-tep.eo.esa.int/puma/wfs?request=GetCapabilities");
+                var url = wfsCaps.capability.request.request[0].get;
+                expect(url).toBe("https://urban-tep.eo.esa.int/puma/wfs?request=GetCapabilities");
             });
         });
 
@@ -205,14 +205,14 @@ define([
 
             it("should have operator as Query", function () {
                 var wfsCaps = new WfsCapabilities(xmlDom);
-                var title = wfsCaps.operations[0];
-                expect(title).toBe("Query");
+                var operation = wfsCaps.operations[0];
+                expect(operation).toBe("Query");
             });
 
             it("should have keywords as AUT_75m_binConnectivity_10km_5km_3km_2_km_1km", function () {
                 var wfsCaps = new WfsCapabilities(xmlDom);
-                var title = wfsCaps.featureType[0].keywords.keywords;
-                expect(title).toBe("features, AUT_75m_binConnectivity_10km_5km_3km_2_km_1km");
+                var keywords = wfsCaps.featureType[0].keywords.keywords;
+                expect(keywords).toBe("features, AUT_75m_binConnectivity_10km_5km_3km_2_km_1km");
             });
         });
 
@@ -220,8 +220,8 @@ define([
 
             it("should have Spatial_Operators as Disjoint", function () {
                 var wfsCaps = new WfsCapabilities(xmlDom);
-                var title = wfsCaps.spatialCapabilities.spop.name[0];
-                expect(title).toBe("Disjoint");
+                var spOp = wfsCaps.spatialCapabilities.spop.name[0];
+                expect(spOp).toBe("Disjoint");
             });
         });
 
@@ -229,8 +229,8 @@ define([
 
             it("should have Spatial_Operators as Disjoint", function () {
                 var wfsCaps = new WfsCapabilities(xmlDom);
-                var title = wfsCaps.scalarCapabilities.arithmetic_Operators.functions.functionName[0].name;
-                expect(title).toBe("abs");
+                var scalarCap = wfsCaps.scalarCapabilities.arithmetic_Operators.functions.functionName[0].name;
+                expect(scalarCap).toBe("abs");
             });
         });
     });
@@ -264,8 +264,8 @@ define([
         describe("Service Identification", function () {
             it("should have title My GeoServer WFS", function () {
                 var wfsCaps = new WfsCapabilities(xmlDom);
-                var title = wfsCaps.serviceWfsIdentification.titles[0].value;
-                expect(title).toBe('My GeoServer WFS');
+                var ServId = wfsCaps.serviceWfsIdentification.titles[0].value;
+                expect(ServId).toBe('My GeoServer WFS');
             });
         });
 
@@ -280,16 +280,16 @@ define([
         describe("WGS84BoundingBox", function () {
             it("should have one of the value as 21.8087501525879", function () {
                 var wfsCaps = new WfsCapabilities(xmlDom);
-                var name = wfsCaps.featureType[2].wgs84BoundingBox.lowerCorner[0];
-                expect(name).toBe(21.8087501525879);
+                var bBox = wfsCaps.featureType[2].wgs84BoundingBox.lowerCorner[0];
+                expect(bBox).toBe(21.8087501525879);
             });
         });
 
         describe("Spatial_Capabilities", function () {
             it("should have FunctionNames as abs", function () {
                 var wfsCaps = new WfsCapabilities(xmlDom);
-                var name = wfsCaps.filterCapabilities.assCap.arithmeticOperators.functions.functionName[0].name;
-                expect(name).toBe("abs");
+                var spCp = wfsCaps.filterCapabilities.assCap.arithmeticOperators.functions.functionName[0].name;
+                expect(spCp).toBe("abs");
             });
         });
 

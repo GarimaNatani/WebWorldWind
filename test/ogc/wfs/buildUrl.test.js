@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 define([
-    'src/ogc/wfs/WfsService'
-], function (WfsService) {
+    'src/ogc/wfs/WfsBuildUrl'
+], function (WfsBuildUrl) {
     "use strict";
 
     describe("Constructor testing", function () {
@@ -30,7 +30,7 @@ define([
     describe("Build Url", function () {
 
         it("should return Url", function () {
-            var wfsurl = new WfsService("http://localhost:8080/geoserver/wfs", "STATE_NAME,PERSONS", "topp:states", "1.1.0");
+            var wfsurl = new WfsBuildUrl("http://localhost:8080/geoserver/wfs", "STATE_NAME,PERSONS", "topp:states", "1.1.0");
             var url = wfsurl.urlForGetFeature("topp:states","application/json");
 
             expect(url).toBe("http://localhost:8080/geoserver/wfs?&request=GetFeature&version=1.1.0&typeName=topp:states&propertyName=STATE_NAME,PERSONS");

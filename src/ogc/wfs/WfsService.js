@@ -1,5 +1,5 @@
 /*
- * Copyright 2015-2017 WorldWind Contributors
+ * Copyright 2018 WorldWind Contributors
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,113 +14,224 @@
  * limitations under the License.
  */
 /**
- * @exports WfsService
+ * @exports WebCoverageService
  */
 define([
         '../../error/ArgumentError',
         '../../util/Logger',
+        '../../util/Promise',
+        '../../ogc/wfs/wfsCapabilities',
+        '../../ogc/wfs/wfsCoverage',
+        '../../ogc/wfs/wfsCoverageDescriptions'
     ],
     function (ArgumentError,
-              Logger) {
+              Logger,
+              Promise,
+              wfsCapabilities,
+              wfsCoverage,
+              wfsCoverageDescriptions) {
         "use strict";
 
+        /**
+         * Provides a list of coverages from a Web Coverage Service including the capabilities and coverage description
+         * documents. For automated configuration, utilize the create function which provides a Promise with a fully
+         * configured WebCoverageService.
+         * @constructor
+         */
+        var WebCoverageService = function () {
 
-        var WfsService = function (serviceAddress, propertyName,typeName, wfsVersion, outputFormat, FEATUREID, FILTER) {
-            if (!serviceAddress || (serviceAddress.length === 0)) {
-                throw new ArgumentError(
-                    Logger.logMessage(Logger.LEVEL_SEVERE, "WfsService", "constructor",
-                        "The Wfs service address is missing."));
-            }
+            /**
+             * The URL for the Web Coverage Service
+             */
+            this.serviceAddress = null;
 
-            if (!typeName || (typeName.length === 0)) {
-                throw new ArgumentError(
-                    Logger.logMessage(Logger.LEVEL_SEVERE, "WfsService", "constructor",
-                        "The Wfs feature name are not specified."));
-            }
+            /**
+             * A collection of the coverages available from this service. Not populated until service is initialized by
+             * the connect method.
+             * @type {Array}
+             */
+            this.coverages = [];
 
+            /**
+             * The wfs GetCapabilities document for this service.
+             * @type {wfsCapabilities}
+             */
+            this.capabilities = null;
 
-            this.serviceAddress = serviceAddress;
-
-            this.typeNames = typeName;
-
-            this.wfsVersion = (wfsVersion && wfsVersion.length > 0) ? wfsVersion : "1.0.0";
-            this.isWms110Greater = this.wfsVersion >= "2.0.0";
-
-            if (this.isWms110Greater) {
-                this.crs = "EPSG:4326";
-            }
-
-            this.propertyName = propertyName;
-            this.outputFormat = outputFormat;
-            this.FEATUREID = FEATUREID;
-            this.FILTER = FILTER;
+            /**
+             * A map of the coverages to their corresponding DescribeCoverage documents.
+             * @type {wfsCoverageDescriptions}
+             */
+            this.coverageDescriptions = null;
         };
 
         /**
-         * Creates the URL string for a Wfs Get Map request.
-         * @param {String} tile The tile for which to create the URL.
-         * @param {String} imageFormat The image format to request.
-         * @throws {ArgumentError} If the specified tile or image format are null or undefined.
+         * The XML namespace for wfs version 1.0.0.
+         * @type {string}
          */
-        WfsService.prototype.urlForGetFeature = function (typeName, outputFormat) {
-            if (!typeName) {
+        WebCoverageService.wfs_XLMNS = "http://www.opengis.net/wfs";
+
+        /**
+         * The XML namespace for wfs version 2.0.0 and 2.0.1.
+         * @type {string}
+         */
+        WebCoverageService.wfs_2_XLMNS = "http://www.opengis.net/wfs/2.0";
+
+        /**
+         * Contacts the Web Coverage Service specified by the service address. This function handles version negotiation
+         * and capabilities and describe coverage document retrieval. The return is a Promise to a fully initialized
+         * WebCoverageService which includes an array of wfsCoverage objects available from this service.
+         * @param serviceAddress the url of the WebCoverageService
+         * @returns {PromiseLike<WebCoverageService>}
+         */
+        WebCoverageService.create = function (serviceAddress) {
+            if (!serviceAddress) {
                 throw new ArgumentError(
-                    Logger.logMessage(Logger.LEVEL_SEVERE, "WfsService", "urlForFeature", "missingtypeName"));
+                    Logger.logMessage(Logger.LEVEL_SEVERE, "WebCoverageService", "constructor", "missingUrl"));
             }
 
-            if (!outputFormat) {
-                throw new ArgumentError(
-                    Logger.logMessage(Logger.LEVEL_SEVERE, "WfsService", "urlForFeature",
-                        "The output feature format is null or undefined."));
+            var service = new WebCoverageService();
+            service.serviceAddress = serviceAddress;
+
+            return service.retrieveCapabilities()
+                .then(function (wfsCapabilities) {
+                    service.capabilities = wfsCapabilities;
+                    return service.retrieveCoverageDescriptions(wfsCapabilities);
+                })
+                .then(function (coverages) {
+                    service.parseCoverages(coverages);
+                    return service;
+                });
+        };
+
+        /**
+         * Returns the coverage associated with the provided id or name
+         * @param coverageId the requested coverage id or name
+         * @returns {wfsCoverage}
+         */
+        WebCoverageService.prototype.getCoverage = function (coverageId) {
+            // TODO
+        };
+
+        // Internal use only
+        WebCoverageService.prototype.retrieveCapabilities = function () {
+            var self = this, version;
+
+            return self.retrieveXml(self.buildCapabilitiesXmlRequest("2.0.1"))
+                .then(function (xmlDom) {
+                    // Check if the server supports our preferred version of 2.0.1
+                    version = xmlDom.documentElement.getAttribute("version");
+                    if (version === "2.0.1" || version === "2.0.0") {
+                        return xmlDom;
+                    } else {
+                        // If needed, try the server again with a 1.0.0 request
+                        return self.retrieveXml(self.buildCapabilitiesXmlRequest("1.0.0"));
+                    }
+                })
+                // Parse the result
+                .then(function (xmlDom) {
+                    return new wfsCapabilities(xmlDom);
+                });
+        };
+
+        // Internal use only
+        WebCoverageService.prototype.retrieveCoverageDescriptions = function () {
+            return this.retrieveXml(this.buildDescribeCoverageXmlRequest());
+        };
+
+        // Internal use only
+        WebCoverageService.prototype.parseCoverages = function (xmlDom) {
+            this.coverageDescriptions = new wfsCoverageDescriptions(xmlDom);
+            var coverageCount = this.coverageDescriptions.coverages.length;
+
+            for (var i = 0; i < coverageCount; i++) {
+                this.coverages.push(this.coverageDescriptions.coverages[i]);
+            }
+        };
+
+        // Internal use only
+        WebCoverageService.prototype.retrieveXml = function (request) {
+            return new Promise(function (resolve, reject) {
+                var xhr = new XMLHttpRequest();
+                xhr.open("POST", request.url);
+                xhr.onreadystatechange = function () {
+                    if (xhr.readyState === 4) {
+                        if (xhr.status === 200) {
+                            resolve(xhr.responseXML);
+                        } else {
+                            reject(new Error(
+                                Logger.logMessage(Logger.LEVEL_WARNING,
+                                    "XML retrieval failed (" + xhr.statusText + "): " + request.url)));
+                        }
+                    }
+                };
+                xhr.onerror = function () {
+                    reject(new Error(
+                        Logger.logMessage(Logger.LEVEL_WARNING, "XML retrieval failed: " + request.url)));
+                };
+                xhr.ontimeout = function () {
+                    reject(new Error(
+                        Logger.logMessage(Logger.LEVEL_WARNING, "XML retrieval timed out: " + request.url)));
+                };
+                xhr.send(request.body);
+            });
+        };
+
+        // Internal use only
+        WebCoverageService.prototype.buildCapabilitiesXmlRequest = function (version) {
+            var capabilitiesElement = this.createBasewfsElement("GetCapabilities", version);
+
+            return {
+                url: this.serviceAddress,
+                body: new XMLSerializer().serializeToString(capabilitiesElement)
+            };
+        };
+
+        // Internal use only
+        WebCoverageService.prototype.buildDescribeCoverageXmlRequest = function () {
+            var version = this.capabilities.version, describeElement, coverageElement, requestUrl,
+                coverageCount = this.capabilities.coverages.length;
+
+            describeElement = this.createBasewfsElement("DescribeCoverage", version);
+            if (version === "1.0.0") {
+                requestUrl = this.capabilities.capability.request.describeCoverage.get;
+            } else if (version === "2.0.1" || version === "2.0.0") {
+                requestUrl = this.capabilities.operationsMetadata.getOperationMetadataByName("DescribeCoverage").dcp[0].getMethods[0].url;
             }
 
-         var sb = WfsService.fixGetFeatureString(this.serviceAddress);
-
-            if (this.isWms110Greater) {
-                if (sb.search(/service=Wfs/i) < 0) {
-                    sb = sb + "service=wfs";
+            for (var i = 0; i < coverageCount; i++) {
+                if (version === "1.0.0") {
+                    coverageElement = document.createElementNS(WebCoverageService.wfs_XLMNS, "Coverage");
+                    coverageElement.appendChild(document.createTextNode(this.capabilities.coverages[i].name));
+                } else if (version === "2.0.1" || version === "2.0.0") {
+                    coverageElement = document.createElementNS(WebCoverageService.wfs_2_XLMNS, "CoverageId");
+                    coverageElement.appendChild(document.createTextNode(this.capabilities.coverages[i].coverageId));
                 }
-                sb = sb + "&version=" + this.wfsVersion;
-                sb = sb + "&typenames=" + this.typenames;
-                sb = sb + "&filter=" + this.filter;
-            }
-            else {
-                sb = sb + "&request=GetFeature";
-                sb = sb + "&version=" + this.wfsVersion;
-                sb = sb + "&typeName=" + typeName;
-                sb = sb + "&propertyName=" + this.propertyName;
-               // sb = sb + "&outputFormat=" + outputFormat;
-              //  sb = sb + "&FEATUREID=" + this.FEATUREID;
-             //   sb = sb + "&FILTER=" + this.FILTER;
-       //         sb = sb + sector.minLongitude + "," + sector.minLatitude + ",";
-         //       sb = sb + sector.maxLongitude + "," + sector.maxLatitude + ",";
-              //  sb = sb + this.crs;
+                describeElement.appendChild(coverageElement);
             }
 
-        return sb;
-    };
+            return {
+                url: requestUrl,
+                body: new XMLSerializer().serializeToString(describeElement)
+            };
+        };
 
-// Intentionally not documented.
-     WfsService.fixGetFeatureString = function (serviceAddress) {
-     if (!serviceAddress) {
-          throw new ArgumentError(
-            Logger.logMessage(Logger.LEVEL_SEVERE, "WfsService", "fixGetFeatureString",
-                "The specified service address is null or undefined."));
-    }
+        // Internal use only
+        WebCoverageService.prototype.createBasewfsElement = function (elementName, version) {
+            var el;
 
-    var index = serviceAddress.indexOf("?");
+            if (version === "1.0.0") {
+                el = document.createElementNS(WebCoverageService.wfs_XLMNS, elementName);
+                el.setAttribute("version", "1.0.0");
+            } else if (version === "2.0.1" || version === "2.0.0") {
+                el = document.createElementNS(WebCoverageService.wfs_2_XLMNS, elementName);
+                el.setAttribute("version", version);
+            }
 
-    if (index < 0) { // if string contains no question mark
-        serviceAddress = serviceAddress + "?"; // add one
-    } else if (index !== serviceAddress.length - 1) { // else if question mark not at end of string
-        index = serviceAddress.search(/&$/);
-        if (index < 0) {
-            serviceAddress = serviceAddress + "&"; // add a parameter separator
-        }
-    }
+            el.setAttribute("service", "wfs");
 
-    return serviceAddress;
-};
+            return el;
+        };
 
-return WfsService;
-});
+        return WebCoverageService;
+    });
