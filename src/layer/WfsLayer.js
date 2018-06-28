@@ -23,7 +23,7 @@ define([
         '../util/PeriodicTimeSequence',
         '../geom/Sector',
         '../layer/RenderableLayer',
-        '../WfsBuildUrl'
+        '../WfsUrlBuilder'
     ],
     function (ArgumentError,
               Location,
@@ -31,7 +31,7 @@ define([
               PeriodicTimeSequence,
               Sector,
               RenderableLayer,
-              WfsBuildUrl) {
+              WfsUrlBuilder) {
         "use strict";
 
         /**
@@ -76,7 +76,7 @@ define([
             this.displayName = config.title;
             this.pickEnabled = false;
 
-            this.urlBuilder = new WfsBuildUrl(config.service, config.layerNames, config.styleNames, config.version,
+            this.urlBuilder = new WfsUrlBuilder(config.service, config.layerNames, config.styleNames, config.version,
                 timeString);
             if (config.coordinateSystem) {
                 this.urlBuilder.crs = config.coordinateSystem;

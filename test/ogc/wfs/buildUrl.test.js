@@ -14,28 +14,27 @@
  * limitations under the License.
  */
 define([
-    'src/ogc/wfs/WfsBuildUrl'
-], function (WfsBuildUrl) {
+    'src/util/WfsUrlBuilder'
+], function (WfsUrlBuilder) {
     "use strict";
 
     describe("Constructor testing", function () {
 
         it("should throw an exception when nothing is provided as an argument", function () {
             expect((function () {
-                new WfsGetFeature(null)
+                new WfsUrlBuilder(null)
             })).toThrow();
         });
     });
 
+
     describe("Build Url", function () {
 
         it("should return Url", function () {
-            var wfsurl = new WfsBuildUrl("http://localhost:8080/geoserver/wfs", "STATE_NAME,PERSONS", "topp:states", "1.1.0");
+            var wfsurl = new WfsUrlBuilder("http://localhost:8080/geoserver/wfs", "STATE_NAME,PERSONS", "topp:states", "1.1.0");
             var url = wfsurl.urlForGetFeature("topp:states","application/json");
-
             expect(url).toBe("http://localhost:8080/geoserver/wfs?&request=GetFeature&version=1.1.0&typeName=topp:states&propertyName=STATE_NAME,PERSONS");
         });
     });
 
-
-    });
+});

@@ -14,27 +14,27 @@
  * limitations under the License.
  */
 /**
- * @exports WfsBuildUrl
+ * @exports WfsUrlBuilder
  */
 define([
-        '../../error/ArgumentError',
-        '../../util/Logger',
+        '../error/ArgumentError',
+        '../util/Logger'
     ],
     function (ArgumentError,
               Logger) {
         "use strict";
 
 
-        var WfsBuildUrl = function (serviceAddress, propertyName,typeName, wfsVersion, outputFormat, FEATUREID, FILTER) {
+        var WfsUrlBuilder = function (serviceAddress, propertyName,typeName, wfsVersion, outputFormat, FEATUREID, FILTER) {
             if (!serviceAddress || (serviceAddress.length === 0)) {
                 throw new ArgumentError(
-                    Logger.logMessage(Logger.LEVEL_SEVERE, "WfsBuildUrl", "constructor",
+                    Logger.logMessage(Logger.LEVEL_SEVERE, "WfsUrlBuilder", "constructor",
                         "The Wfs service address is missing."));
             }
 
             if (!typeName || (typeName.length === 0)) {
                 throw new ArgumentError(
-                    Logger.logMessage(Logger.LEVEL_SEVERE, "WfsBuildUrl", "constructor",
+                    Logger.logMessage(Logger.LEVEL_SEVERE, "WfsUrlBuilder", "constructor",
                         "The Wfs feature name are not specified."));
             }
 
@@ -62,19 +62,19 @@ define([
          * @param {String} imageFormat The image format to request.
          * @throws {ArgumentError} If the specified tile or image format are null or undefined.
          */
-        WfsBuildUrl.prototype.urlForGetFeature = function (typeName, outputFormat) {
+        WfsUrlBuilder.prototype.urlForGetFeature = function (typeName, outputFormat) {
             if (!typeName) {
                 throw new ArgumentError(
-                    Logger.logMessage(Logger.LEVEL_SEVERE, "WfsBuildUrl", "urlForFeature", "missingtypeName"));
+                    Logger.logMessage(Logger.LEVEL_SEVERE, "WfsUrlBuilder", "urlForFeature", "missingtypeName"));
             }
 
             if (!outputFormat) {
                 throw new ArgumentError(
-                    Logger.logMessage(Logger.LEVEL_SEVERE, "WfsBuildUrl", "urlForFeature",
+                    Logger.logMessage(Logger.LEVEL_SEVERE, "WfsUrlBuilder", "urlForFeature",
                         "The output feature format is null or undefined."));
             }
 
-         var sb = WfsBuildUrl.fixGetFeatureString(this.serviceAddress);
+         var sb = WfsUrlBuilder.fixGetFeatureString(this.serviceAddress);
 
             if (this.isWms110Greater) {
                 if (sb.search(/service=Wfs/i) < 0) {
@@ -101,10 +101,10 @@ define([
     };
 
 // Intentionally not documented.
-     WfsBuildUrl.fixGetFeatureString = function (serviceAddress) {
+     WfsUrlBuilder.fixGetFeatureString = function (serviceAddress) {
      if (!serviceAddress) {
           throw new ArgumentError(
-            Logger.logMessage(Logger.LEVEL_SEVERE, "WfsBuildUrl", "fixGetFeatureString",
+            Logger.logMessage(Logger.LEVEL_SEVERE, "WfsUrlBuilder", "fixGetFeatureString",
                 "The specified service address is null or undefined."));
     }
 
@@ -122,5 +122,5 @@ define([
     return serviceAddress;
 };
 
-return WfsBuildUrl;
+return WfsUrlBuilder;
 });
