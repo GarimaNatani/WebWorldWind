@@ -14,43 +14,42 @@
  * limitations under the License.
  */
 /**
- * @exports WebCoverageService
+ * @exports WfsService
  */
 define([
         '../../error/ArgumentError',
         '../../util/Logger',
         '../../util/Promise',
         '../../ogc/wfs/wfsCapabilities',
-        '../../ogc/wfs/wfsCoverage',
-        '../../ogc/wfs/wfsCoverageDescriptions'
+        '../../ogc/wfs/wfsGetFeature',
     ],
     function (ArgumentError,
               Logger,
               Promise,
               wfsCapabilities,
-              wfsCoverage,
-              wfsCoverageDescriptions) {
+              wfsGetFeature,
+              ) {
         "use strict";
 
         /**
-         * Provides a list of coverages from a Web Coverage Service including the capabilities and coverage description
+         * Provides a list of Features from a Web Feature Service including the capabilities and Feature description
          * documents. For automated configuration, utilize the create function which provides a Promise with a fully
-         * configured WebCoverageService.
+         * configured WfsService.
          * @constructor
          */
-        var WebCoverageService = function () {
+        var WfsService = function () {
 
             /**
-             * The URL for the Web Coverage Service
+             * The URL for the Web Feature Service
              */
             this.serviceAddress = null;
 
             /**
-             * A collection of the coverages available from this service. Not populated until service is initialized by
+             * A collection of the Features available from this service. Not populated until service is initialized by
              * the connect method.
              * @type {Array}
              */
-            this.coverages = [];
+            this.Features = [];
 
             /**
              * The wfs GetCapabilities document for this service.
@@ -59,62 +58,62 @@ define([
             this.capabilities = null;
 
             /**
-             * A map of the coverages to their corresponding DescribeCoverage documents.
-             * @type {wfsCoverageDescriptions}
+             * A map of the Features to their corresponding DescribeFeature documents.
+             * @type {wfsFeatureDescriptions}
              */
-            this.coverageDescriptions = null;
+            this.FeatureDescriptions = null;
         };
 
         /**
          * The XML namespace for wfs version 1.0.0.
          * @type {string}
          */
-        WebCoverageService.wfs_XLMNS = "http://www.opengis.net/wfs";
+        WfsService.wfs_XLMNS = "http://www.opengis.net/wfs";
 
         /**
          * The XML namespace for wfs version 2.0.0 and 2.0.1.
          * @type {string}
          */
-        WebCoverageService.wfs_2_XLMNS = "http://www.opengis.net/wfs/2.0";
+        WfsService.wfs_2_XLMNS = "http://www.opengis.net/wfs/2.0";
 
         /**
-         * Contacts the Web Coverage Service specified by the service address. This function handles version negotiation
-         * and capabilities and describe coverage document retrieval. The return is a Promise to a fully initialized
-         * WebCoverageService which includes an array of wfsCoverage objects available from this service.
-         * @param serviceAddress the url of the WebCoverageService
-         * @returns {PromiseLike<WebCoverageService>}
+         * Contacts the Web Feature Service specified by the service address. This function handles version negotiation
+         * and capabilities and describe Feature document retrieval. The return is a Promise to a fully initialized
+         * WfsService which includes an array of wfsFeature objects available from this service.
+         * @param serviceAddress the url of the WfsService
+         * @returns {PromiseLike<WfsService>}
          */
-        WebCoverageService.create = function (serviceAddress) {
+        WfsService.create = function (serviceAddress) {
             if (!serviceAddress) {
                 throw new ArgumentError(
-                    Logger.logMessage(Logger.LEVEL_SEVERE, "WebCoverageService", "constructor", "missingUrl"));
+                    Logger.logMessage(Logger.LEVEL_SEVERE, "WfsService", "constructor", "missingUrl"));
             }
 
-            var service = new WebCoverageService();
+            var service = new WfsService();
             service.serviceAddress = serviceAddress;
 
             return service.retrieveCapabilities()
                 .then(function (wfsCapabilities) {
                     service.capabilities = wfsCapabilities;
-                    return service.retrieveCoverageDescriptions(wfsCapabilities);
+                    return service.retrieveFeatureDescriptions(wfsCapabilities);
                 })
-                .then(function (coverages) {
-                    service.parseCoverages(coverages);
+                .then(function (Features) {
+                    service.parseFeatures(Features);
                     return service;
                 });
         };
 
         /**
-         * Returns the coverage associated with the provided id or name
-         * @param coverageId the requested coverage id or name
-         * @returns {wfsCoverage}
+         * Returns the Feature associated with the provided id or name
+         * @param FeatureId the requested Feature id or name
+         * @returns {wfsFeature}
          */
-        WebCoverageService.prototype.getCoverage = function (coverageId) {
+        WfsService.prototype.getFeature = function (FeatureId) {
             // TODO
         };
 
         // Internal use only
-        WebCoverageService.prototype.retrieveCapabilities = function () {
+        WfsService.prototype.retrieveCapabilities = function () {
             var self = this, version;
 
             return self.retrieveXml(self.buildCapabilitiesXmlRequest("2.0.1"))
@@ -135,22 +134,22 @@ define([
         };
 
         // Internal use only
-        WebCoverageService.prototype.retrieveCoverageDescriptions = function () {
-            return this.retrieveXml(this.buildDescribeCoverageXmlRequest());
+        WfsService.prototype.retrieveFeatureDescriptions = function () {
+            return this.retrieveXml(this.buildDescribeFeatureXmlRequest());
         };
 
         // Internal use only
-        WebCoverageService.prototype.parseCoverages = function (xmlDom) {
-            this.coverageDescriptions = new wfsCoverageDescriptions(xmlDom);
-            var coverageCount = this.coverageDescriptions.coverages.length;
+        WfsService.prototype.parseFeatures = function (xmlDom) {
+            this.FeatureDescriptions = new wfsFeatureDescriptions(xmlDom);
+            var FeatureCount = this.FeatureDescriptions.Features.length;
 
-            for (var i = 0; i < coverageCount; i++) {
-                this.coverages.push(this.coverageDescriptions.coverages[i]);
+            for (var i = 0; i < FeatureCount; i++) {
+                this.Features.push(this.FeatureDescriptions.Features[i]);
             }
         };
 
         // Internal use only
-        WebCoverageService.prototype.retrieveXml = function (request) {
+        WfsService.prototype.retrieveXml = function (request) {
             return new Promise(function (resolve, reject) {
                 var xhr = new XMLHttpRequest();
                 xhr.open("POST", request.url);
@@ -178,7 +177,7 @@ define([
         };
 
         // Internal use only
-        WebCoverageService.prototype.buildCapabilitiesXmlRequest = function (version) {
+        WfsService.prototype.buildCapabilitiesXmlRequest = function (version) {
             var capabilitiesElement = this.createBasewfsElement("GetCapabilities", version);
 
             return {
@@ -188,26 +187,26 @@ define([
         };
 
         // Internal use only
-        WebCoverageService.prototype.buildDescribeCoverageXmlRequest = function () {
-            var version = this.capabilities.version, describeElement, coverageElement, requestUrl,
-                coverageCount = this.capabilities.coverages.length;
+        WfsService.prototype.buildDescribeFeatureXmlRequest = function () {
+            var version = this.capabilities.version, describeElement, FeatureElement, requestUrl,
+                FeatureCount = this.capabilities.Features.length;
 
-            describeElement = this.createBasewfsElement("DescribeCoverage", version);
+            describeElement = this.createBasewfsElement("DescribeFeature", version);
             if (version === "1.0.0") {
-                requestUrl = this.capabilities.capability.request.describeCoverage.get;
+                requestUrl = this.capabilities.capability.request.describeFeature.get;
             } else if (version === "2.0.1" || version === "2.0.0") {
-                requestUrl = this.capabilities.operationsMetadata.getOperationMetadataByName("DescribeCoverage").dcp[0].getMethods[0].url;
+                requestUrl = this.capabilities.operationsMetadata.getOperationMetadataByName("DescribeFeature").dcp[0].getMethods[0].url;
             }
 
-            for (var i = 0; i < coverageCount; i++) {
+            for (var i = 0; i < FeatureCount; i++) {
                 if (version === "1.0.0") {
-                    coverageElement = document.createElementNS(WebCoverageService.wfs_XLMNS, "Coverage");
-                    coverageElement.appendChild(document.createTextNode(this.capabilities.coverages[i].name));
+                    FeatureElement = document.createElementNS(WfsService.wfs_XLMNS, "Feature");
+                    FeatureElement.appendChild(document.createTextNode(this.capabilities.Features[i].name));
                 } else if (version === "2.0.1" || version === "2.0.0") {
-                    coverageElement = document.createElementNS(WebCoverageService.wfs_2_XLMNS, "CoverageId");
-                    coverageElement.appendChild(document.createTextNode(this.capabilities.coverages[i].coverageId));
+                    FeatureElement = document.createElementNS(WfsService.wfs_2_XLMNS, "FeatureId");
+                    FeatureElement.appendChild(document.createTextNode(this.capabilities.Features[i].FeatureId));
                 }
-                describeElement.appendChild(coverageElement);
+                describeElement.appendChild(FeatureElement);
             }
 
             return {
@@ -217,14 +216,14 @@ define([
         };
 
         // Internal use only
-        WebCoverageService.prototype.createBasewfsElement = function (elementName, version) {
+        WfsService.prototype.createBasewfsElement = function (elementName, version) {
             var el;
 
             if (version === "1.0.0") {
-                el = document.createElementNS(WebCoverageService.wfs_XLMNS, elementName);
+                el = document.createElementNS(WfsService.wfs_XLMNS, elementName);
                 el.setAttribute("version", "1.0.0");
             } else if (version === "2.0.1" || version === "2.0.0") {
-                el = document.createElementNS(WebCoverageService.wfs_2_XLMNS, elementName);
+                el = document.createElementNS(WfsService.wfs_2_XLMNS, elementName);
                 el.setAttribute("version", version);
             }
 
@@ -233,5 +232,5 @@ define([
             return el;
         };
 
-        return WebCoverageService;
+        return WfsService;
     });
