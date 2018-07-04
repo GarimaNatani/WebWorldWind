@@ -722,6 +722,7 @@ define(['../../error/ArgumentError',
                 if (configuration && configuration.userProperties) {
                     shape.userProperties = configuration.userProperties;
                 }
+
                 layer.addRenderable(shape);
             }
         };
@@ -878,8 +879,11 @@ define(['../../error/ArgumentError',
                         "missingGeometry"));
             }
 
-            var configuration = this.shapeConfigurationCallback(geometry, properties);
+           /* var ok =new RenderableLayer();
+                ok=layer;
+                console.log(ok);*/
 
+            var configuration = this.shapeConfigurationCallback(geometry, properties);
             if (!this.crs || this.crs.isCRSSupported()) {
                 for (var polygonsIndex = 0, polygons = geometry.coordinates;
                      polygonsIndex < polygons.length; polygonsIndex++) {
@@ -914,6 +918,7 @@ define(['../../error/ArgumentError',
                     if (configuration && configuration.userProperties) {
                         shape.userProperties = configuration.userProperties;
                     }
+
                     layer.addRenderable(shape);
                 }
             }
@@ -1103,6 +1108,10 @@ define(['../../error/ArgumentError',
                     Proj4.defs('EPSG:4326')
                 ],
                 [
+                    'urn:ogc:def:crs:EPSG::4326',
+                    Proj4.defs('EPSG:4326')
+                ],
+                [
                     'urn:ogc:def:crs:EPSG::3857',
                     Proj4.defs('EPSG:3857')
 
@@ -1125,4 +1134,6 @@ define(['../../error/ArgumentError',
 
         return GeoJSONParser;
     }
+
+
 );
