@@ -237,7 +237,7 @@ define([ // PLEASE KEEP ALL THIS IN ALPHABETICAL ORDER BY MODULE NAME (not direc
         './globe/WcsEarthElevationCoverage',
         './util/WcsTileUrlBuilder',
         './ogc/wcs/WebCoverageService',
-        './ogc/WfsCapabilities',
+        './ogc/wfs/WfsCapabilities',
         './formats/wkt/Wkt',
         './formats/wkt/WktElements',
         './formats/wkt/WktExporter',

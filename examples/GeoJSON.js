@@ -93,8 +93,8 @@ requirejs(['./WorldWindShim',
             wwd.addLayer(layer);
         };
 
-     //  var resourcesUrl = "https://worldwind.arc.nasa.gov/web/examples/data/geojson-data/";
- /*
+  var resourcesUrl = "https://worldwind.arc.nasa.gov/web/examples/data/geojson-data/";
+
         // Polygon test
         var polygonLayer = new WorldWind.RenderableLayer("Polygon");
         var polygonGeoJSON = new WorldWind.GeoJSONParser(resourcesUrl + "PolygonTest.geojson");
@@ -163,9 +163,6 @@ requirejs(['./WorldWindShim',
         worldRiversGeoJSON.load(null, shapeConfigurationCallback, worldRiversLayer);
         wwd.addLayer(worldRiversLayer);
 
-
-
-
         //CRS Reprojection test
 
         //USA EPSG:3857 named
@@ -186,11 +183,7 @@ requirejs(['./WorldWindShim',
         usa4326GeoJSON.load(null, shapeConfigurationCallback, usa4326Layer);
         wwd.addLayer(usa4326Layer);*/
 
-        var resourcesUrl1 ="http://localhost:8080/geoserver/wfs?request=GetFeature&outputFormat=application/json&version=1.1.0&typeName=topp:states&propertyName=STATE_NAME,PERSONS&BBOX=-75.102613,40.212597,-72.361859,41.512517,EPSG:4326";
-        var wfsLayer = new WorldWind.RenderableLayer("WFS");
-        var wfsGeoJSON = new WorldWind.GeoJSONParser(resourcesUrl1);
-        wfsGeoJSON.load(null, shapeConfigurationCallback, wfsLayer);
-        wwd.addLayer(wfsLayer);
+
         // Create a layer manager for controlling layer visibility.
         var layerManager = new LayerManager(wwd);
     });

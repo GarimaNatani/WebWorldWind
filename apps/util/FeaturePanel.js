@@ -23,17 +23,17 @@ define(function () {
      * Constructs a servers panel.
      * @alias ServersPanel
      * @constructor
-     * @classdesc Provides a list of collapsible panels that indicate the layers associated with a WMS or other
-     * image server. Currently only WMS is supported. The user can select a server's layers and they will be added to
+     * @classdesc Provides a list of collapsible panels that indicate the features associated with a wfs or other
+     * image server. Currently only wfs is supported. The user can select a server's features and they will be added to
      * the WorldWindow's layer list.
-     * @param {WorldWindow} worldWindow The WorldWindow to associate this layers panel with.
-     * @param {LayersPanel} layersPanel The layers panel managing the specified WorldWindows layer list.
+     * @param {WorldWindow} worldWindow The WorldWindow to associate this features panel with.
+     * @param {featuresPanel} featuresPanel The features panel managing the specified WorldWindows layer list.
      */
-    var ServersPanel = function (worldWindow, layersPanel, timeSeriesPlayer) {
+    var ServersPanel = function (worldWindow, featuresPanel, timeSeriesPlayer) {
         var thisServersPanel = this;
 
         this.wwd = worldWindow;
-        this.layersPanel = layersPanel;
+        this.featuresPanel = featuresPanel;
         this.timeSeriesPlayer = timeSeriesPlayer;
 
         this.idCounter = 1;
@@ -74,12 +74,13 @@ define(function () {
         if (serverAddress.lastIndexOf("https", 0) != 0) {
             serverAddress = "https://" + serverAddress;
         }
-
-        var thisExplorer = this,
-            request = new XMLHttpRequest(),
-            url = WorldWind.WmsUrlBuilder.fixGetMapString(serverAddress);
-
-        url += "service=WMS&request=GetCapabilities&vers";
+console.log(serverAddress);
+        var thisWfs = this,
+            request = new XMLHttpRequest();
+          // url = WorldWind.wfsUrlBuilder.fixGetMapString(serverAddress);
+     var url=serverAddress;
+    url += "&request=getCapabilities";
+    console.log(url);
 
         request.open("GET", url, true);
         request.onreadystatechange = function () {
@@ -91,23 +92,23 @@ define(function () {
                 }
 
                 if (!xmlDom) {
-                    alert(serverAddress + " retrieval failed. It is probably not a WMS server.");
+                    alert(serverAddress + " retrieval failed. It is probably not a wfs server.");
                     return;
                 }
 
-                var wmsCapsDoc = new WorldWind.WmsCapabilities(xmlDom);
+                var wfsCapsDoc = new WorldWind.WfsCapabilities(xmlDom);
 
-                if (wmsCapsDoc.version) { // if no version, then the URL doesn't point to a caps doc.
-                    thisExplorer.addServerPanel(serverAddress, wmsCapsDoc);
+                if (wfsCapsDoc.version) { // if no version, then the URL doesn't point to a caps doc.
+                    thisWfs.addFeaturePanel(serverAddress, wfsCapsDoc);
                 } else {
                     alert(serverAddress +
-                        " WMS capabilities document invalid. The server is probably not a WMS server.");
+                        " wfs capabilities document invalid. The server is probably not a wfs server.");
                 }
             } else if (request.readyState === 4) {
                 if (request.statusText) {
                     alert(request.responseURL + " " + request.status + " (" + request.statusText + ")");
                 } else {
-                    alert("Failed to retrieve WMS capabilities from " + serverAddress + ".");
+                    alert("Failed to retrieve wfs capabilities from " + serverAddress + ".");
                 }
             }
         };
@@ -115,12 +116,12 @@ define(function () {
         request.send(null);
     };
 
-    ServersPanel.prototype.addServerPanel = function (serverAddress, wmsCapsDoc) {
+    ServersPanel.prototype.addFeaturePanel = function (serverAddress, wfsCapsDoc) {
+
         var treeId = this.idCounter++,
             headingID = this.idCounter++,
             collapseID = this.idCounter++,
-            wmsService = wmsCapsDoc.service,
-            panelTitle = wmsService.title && wmsService.title.length > 0 ? wmsService.title : serverAddress;
+            panelTitle = wfsCapsDoc.serviceWfsIdentification.titles[0].value && wfsCapsDoc.serviceWfsIdentification.titles[0].value.length > 0 ? wfsCapsDoc.serviceWfsIdentification.titles[0].value : serverAddress;
         //
         //var html = '<div class="panel panel-default">';
         //html += '<div class="panel-heading" role="tab" id="' + headingID + '">';
@@ -167,12 +168,8 @@ define(function () {
 
         // Don't show the top-level layer if it's a grouping layer with the same title as the server title.
         // The NEO server is set up this way, for example.
-        var layers = wmsCapsDoc.capability.layers;
-        if ((layers.length === 1) && (layers[0].layers) &&
-            (layers[0].title === wmsCapsDoc.service.title) && !(layers[0].name && layers[0].name.length > 0)) {
-            layers = layers[0].layers;
-        }
-        treeRoot.addChildren(this.assembleLayers(layers, []));
+        var features = wfsCapsDoc.featureType;
+         treeRoot.addChildren(this.assemblefeatures(features, []));
 
         // Collapse grouping nodes if there are many of them.
         var numNodes = 0;
@@ -231,19 +228,19 @@ define(function () {
         return treeDiv;
     };
 
-    ServersPanel.prototype.assembleLayers = function (layers, result) {
+    ServersPanel.prototype.assemblefeatures = function (features, result) {
 
-        for (var i = 0; i < layers.length; i++) {
-            var layer = layers[i],
-                subLayers = null,
+        for (var i = 0; i < features.length; i++) {
+            var layer = features[i],
+                subfeatures = null,
                 node = {
                     title: layer.title,
                     tooltip: layer.title,
                     layerCaps: layer
                 };
 
-            if (layer.layers && layer.layers.length > 0) {
-                subLayers = this.assembleLayers(layer.layers, []);
+            if (layer.features && layer.features.length > 0) {
+                subfeatures = this.assemblefeatures(layer.features, []);
             }
 
             if (!layer.name) {
@@ -253,8 +250,8 @@ define(function () {
                 node.folder = true;
             }
 
-            if (subLayers) {
-                node.children = subLayers;
+            if (subfeatures) {
+                node.children = subfeatures;
             }
 
             result.push(node);
@@ -265,53 +262,17 @@ define(function () {
 
     ServersPanel.prototype.addLayer = function (layerCaps) {
         if (layerCaps.name) {
-            var config = WorldWind.WmsLayer.formLayerConfiguration(layerCaps, null);
-            var layer;
+            var resourcesUrl1 ="";
+            var wfsLayer = new WorldWind.RenderableLayer(layerCaps);
+            var wfsGetFeature = new WorldWind.GeoJSONParser(resourcesUrl1);
+            wfsGetFeature.load(null, shapeConfigurationCallback, wfsLayer);
 
-            if (config.timeSequences &&
-                (config.timeSequences[config.timeSequences.length - 1] instanceof WorldWind.PeriodicTimeSequence)) {
-                var timeSequence = config.timeSequences[config.timeSequences.length - 1];
-                config.levelZeroDelta = new WorldWind.Location(180, 180);
-                layer = new WorldWind.WmsTimeDimensionedLayer(config);
-                layer.opacity = 0.8;
-                layer.time = timeSequence.startTime;
-                this.timeSeriesPlayer.timeSequence = timeSequence;
-                this.timeSeriesPlayer.layer = layer;
-                layer.timeSequence = timeSequence;
-
-                //for (var t = timeSequence.currentTime; t != null; t = timeSequence.next()) {
-                //    console.log(t.toISOString());
-                //}
-                //timeSequence.reset();
-
-            }
-            else if (config.timeSequences &&
-                (config.timeSequences[config.timeSequences.length - 1] instanceof Date)) {
-                timeSequence = config.timeSequences[config.timeSequences.length - 1];
-                config.levelZeroDelta = new WorldWind.Location(180, 180);
-                layer = new WorldWind.WmsTimeDimensionedLayer(config);
-                layer.opacity = 0.8;
-                layer.time = config.timeSequences[0];
-                this.timeSeriesPlayer.timeSequence = new WorldWind.BasicTimeSequence(config.timeSequences);
-                this.timeSeriesPlayer.layer = layer;
-                layer.timeSequence = timeSequence;
-            }
-            else {
-                layer = new WorldWind.WmsLayer(config, null);
-                this.timeSeriesPlayer.timeSequence = null;
-                this.timeSeriesPlayer.layer = null;
-            }
-
-            if (layerCaps.styles && layerCaps.styles.length > 0
-                && layerCaps.styles[0].legendUrls && layerCaps.styles[0].legendUrls.length > 0) {
-                layer.companionLayer = this.addLegend(layerCaps.styles[0].legendUrls[0]);
-            }
 
             layer.enabled = true;
             this.wwd.addLayer(layer);
             this.wwd.redraw();
 
-            this.layersPanel.synchronizeLayerList();
+            this.featuresPanel.synchronizeLayerList();
 
             return layer;
         }
@@ -333,7 +294,7 @@ define(function () {
         }
 
         this.wwd.redraw();
-        this.layersPanel.synchronizeLayerList();
+        this.featuresPanel.synchronizeLayerList();
     };
 
     ServersPanel.prototype.addLegend = function (legendCaps) {

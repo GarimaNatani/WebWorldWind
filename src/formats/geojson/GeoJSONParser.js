@@ -879,10 +879,6 @@ define(['../../error/ArgumentError',
                         "missingGeometry"));
             }
 
-           /* var ok =new RenderableLayer();
-                ok=layer;
-                console.log(ok);*/
-
             var configuration = this.shapeConfigurationCallback(geometry, properties);
             if (!this.crs || this.crs.isCRSSupported()) {
                 for (var polygonsIndex = 0, polygons = geometry.coordinates;

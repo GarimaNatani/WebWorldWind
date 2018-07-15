@@ -70,7 +70,7 @@ define([
 
             this.version = root.getAttribute("version");
             this.updateSequence = root.getAttribute("updateSequence");
-            // Wfs 1.0.0 does not utilize OWS Common GetCapabilities service and capability descriptions.
+        // Wfs 1.0.0 does not utilize OWS Common GetCapabilities service and capability descriptions.
             if (this.version === "1.0.0") {
                 this.assembleDocument100(root);
             }
@@ -110,9 +110,11 @@ define([
          @returns null
          */
         WfsCapabilities.prototype.assembleDocument200x = function (root) {
+         //   console.log(root);
             var children = root.children || root.childNodes;
+
             for (var c = 0; c < children.length; c++) {
-                var child = children[c];
+                 var child = children[c];
                 if (child.localName === "ServiceIdentification") {
                     this.serviceWfsIdentification = new OwsWfsServiceIdentification(child);
                 } else if (child.localName === "ServiceProvider") {

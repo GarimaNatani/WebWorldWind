@@ -45,25 +45,27 @@ define([
             }
 
             OwsDescription.call(this, element);
-
             var children = element.children || element.childNodes;
             for (var c = 0; c < children.length; c++) {
                 var child = children[c];
 
                 if (child.localName === "ServiceType") {
                     this.serviceType = child.textContent;
-                } else if (child.localName === "ServiceTypeVersion") {
-                    this.serviceTypeVersion = child.textContent;
-                } else if (child.localName === "Fees") {
-                    this.fees = child.textContent;
-                } else if (child.localName === "AccessConstraints") {
-                    this.accessConstraints = this.accessConstraints || [];
-                    this.accessConstraints.push(child.textContent);
+                }
+                    else  if (child.localName === "ServiceTypeVersion") {
+                        this.serviceTypeVersion = child.textContent;
+                    } else if (child.localName === "Fees") {
+                        this.fees = child.textContent;
+                    } else if (child.localName === "AccessConstraints") {
+                        this.accessConstraints = this.accessConstraints || [];
+                        this.accessConstraints.push(child.textContent);
+                    }
                 }
             }
-        };
+            ;
 
-        OwsWfsServiceIdentification.prototype = Object.create(OwsDescription.prototype);
+            OwsWfsServiceIdentification.prototype = Object.create(OwsDescription.prototype);
 
-        return OwsWfsServiceIdentification;
-    });
+            return OwsWfsServiceIdentification;
+        }
+    );
