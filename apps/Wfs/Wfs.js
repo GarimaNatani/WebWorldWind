@@ -24,7 +24,7 @@ define(['../../src/WorldWind',
               GoToBox,
               LayersPanel,
               ProjectionMenu,
-              ServersPanel,
+              FeaturePanel,
               TimeSeriesPlayer) {
         "use strict";
 
@@ -63,12 +63,12 @@ define(['../../src/WorldWind',
             this.goToBox = new GoToBox(this.wwd);
             this.layersPanel = new LayersPanel(this.wwd);
             this.timeSeriesPlayer = new TimeSeriesPlayer(this.wwd);
-            this.serversPanel = new ServersPanel(this.wwd, this.layersPanel, this.timeSeriesPlayer);
+            this.FeaturePanel = new FeaturePanel(this.wwd, this.layersPanel, this.timeSeriesPlayer);
             this.projectionMenu = new ProjectionMenu(this.wwd);
 
             this.layersPanel.timeSeriesPlayer = this.timeSeriesPlayer;
 
-           // this.serversPanel.attachServer("http://localhost:8080/geoserver/wfs");
+           // this.FeaturePanel.attachServer("http://localhost:8080/geoserver/wfs");
             
               };
 

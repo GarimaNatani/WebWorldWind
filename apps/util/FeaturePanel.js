@@ -14,14 +14,14 @@
  * limitations under the License.
  */
 /**
- * @exports ServersPanel
+ * @exports FeaturePanel
  */
 define(function () {
     "use strict";
 
     /**
      * Constructs a servers panel.
-     * @alias ServersPanel
+     * @alias FeaturePanel
      * @constructor
      * @classdesc Provides a list of collapsible panels that indicate the features associated with a wfs or other
      * image server. Currently only wfs is supported. The user can select a server's features and they will be added to
@@ -29,8 +29,8 @@ define(function () {
      * @param {WorldWindow} worldWindow The WorldWindow to associate this features panel with.
      * @param {featuresPanel} featuresPanel The features panel managing the specified WorldWindows layer list.
      */
-    var ServersPanel = function (worldWindow, featuresPanel, timeSeriesPlayer) {
-        var thisServersPanel = this;
+    var FeaturePanel = function (worldWindow, featuresPanel, timeSeriesPlayer) {
+        var thisFeaturePanel = this;
 
         this.wwd = worldWindow;
         this.featuresPanel = featuresPanel;
@@ -41,20 +41,20 @@ define(function () {
         this.legends = {};
 
         $("#addServerBox").find("button").on("click", function (e) {
-            thisServersPanel.onAddServerButton(e);
+            thisFeaturePanel.onAddServerButton(e);
         });
 
         $("#addServerText").on("keypress", function (e) {
-            thisServersPanel.onAddServerTextKeyPress($(this), e);
+            thisFeaturePanel.onAddServerTextKeyPress($(this), e);
         });
     };
 
-    ServersPanel.prototype.onAddServerButton = function (event) {
+    FeaturePanel.prototype.onAddServerButton = function (event) {
         this.attachServer($("#addServerText")[0].value);
         $("#addServerText").val("");
     };
 
-    ServersPanel.prototype.onAddServerTextKeyPress = function (searchInput, event) {
+    FeaturePanel.prototype.onAddServerTextKeyPress = function (searchInput, event) {
         if (event.keyCode === 13) {
             searchInput.blur();
             this.attachServer($("#addServerText")[0].value);
@@ -62,7 +62,7 @@ define(function () {
         }
     };
 
-    ServersPanel.prototype.attachServer = function (serverAddress) {
+    FeaturePanel.prototype.attachServer = function (serverAddress) {
         if (!serverAddress) {
             return;
         }
@@ -116,7 +116,7 @@ console.log(serverAddress);
         request.send(null);
     };
 
-    ServersPanel.prototype.addFeaturePanel = function (serverAddress, wfsCapsDoc) {
+    FeaturePanel.prototype.addFeaturePanel = function (serverAddress, wfsCapsDoc) {
 
         var treeId = this.idCounter++,
             headingID = this.idCounter++,
@@ -183,8 +183,8 @@ console.log(serverAddress);
         }
     };
 
-    ServersPanel.prototype.makeTree = function (serverAddress, treeId) {
-        var thisServersPanel = this,
+    FeaturePanel.prototype.makeTree = function (serverAddress, treeId) {
+        var thisFeaturePanel = this,
             treeDivId = "treeDiv" + treeId,
             treeDataId = "treeData" + treeId,
             treeDiv = $('<div id="' + treeDivId + '">'),
@@ -209,14 +209,14 @@ console.log(serverAddress);
                 if (layer) {
                     if (!node.selected) {
                         node.data.layer = null;
-                        thisServersPanel.removeLayer(layer);
+                        thisFeaturePanel.removeLayer(layer);
                     }
                     //layer.enabled = node.selected;
                 } else if (node.selected && node.data.layerCaps && node.data.layerCaps.name) {
-                    node.data.layer = thisServersPanel.addLayer(node.data.layerCaps);
+                    node.data.layer = thisFeaturePanel.addLayer(node.data.layerCaps);
                 }
 
-                thisServersPanel.wwd.redraw();
+                thisFeaturePanel.wwd.redraw();
                 return false;
             }
         });
@@ -228,7 +228,7 @@ console.log(serverAddress);
         return treeDiv;
     };
 
-    ServersPanel.prototype.assemblefeatures = function (features, result) {
+    FeaturePanel.prototype.assemblefeatures = function (features, result) {
 
         for (var i = 0; i < features.length; i++) {
             var layer = features[i],
@@ -260,7 +260,7 @@ console.log(serverAddress);
         return result;
     };
 
-    ServersPanel.prototype.addLayer = function (layerCaps) {
+    FeaturePanel.prototype.addLayer = function (layerCaps) {
         if (layerCaps.name) {
             var resourcesUrl1 ="";
             var wfsLayer = new WorldWind.RenderableLayer(layerCaps);
@@ -280,7 +280,7 @@ console.log(serverAddress);
         return null;
     };
 
-    ServersPanel.prototype.removeLayer = function (layer) {
+    FeaturePanel.prototype.removeLayer = function (layer) {
         this.removeLegend(layer.companionLayer);
 
         this.wwd.removeLayer(layer);
@@ -297,7 +297,7 @@ console.log(serverAddress);
         this.featuresPanel.synchronizeLayerList();
     };
 
-    ServersPanel.prototype.addLegend = function (legendCaps) {
+    FeaturePanel.prototype.addLegend = function (legendCaps) {
         var legend = this.legends[legendCaps.url];
 
         if (legend) {
@@ -326,7 +326,7 @@ console.log(serverAddress);
         return legend.layer;
     };
 
-    ServersPanel.prototype.removeLegend = function (legendLayer) {
+    FeaturePanel.prototype.removeLegend = function (legendLayer) {
         for (var legendKey in this.legends) {
             if (this.legends.hasOwnProperty(legendKey)) {
                 var legend = this.legends[legendKey];
@@ -345,7 +345,7 @@ console.log(serverAddress);
         this.updateLegendOffsets();
     };
 
-    ServersPanel.prototype.updateLegendOffsets = function () {
+    FeaturePanel.prototype.updateLegendOffsets = function () {
         var yOffset = 0,
             verticalMargin = 5;
 
@@ -363,5 +363,5 @@ console.log(serverAddress);
         }
     };
 
-    return ServersPanel;
+    return FeaturePanel;
 });
