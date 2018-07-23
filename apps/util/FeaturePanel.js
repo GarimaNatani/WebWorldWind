@@ -16,7 +16,8 @@
 /**
  * @exports FeaturePanel
  */
-define(function () {
+define(['../Wfs/Wfs'],
+function (shapeConfigurationCallback) {
     "use strict";
 
     /**
@@ -213,7 +214,7 @@ console.log(serverAddress);
                     }
                     //layer.enabled = node.selected;
                 } else if (node.selected && node.data.layerCaps && node.data.layerCaps.name) {
-                    node.data.layer = thisFeaturePanel.addLayer(node.data.layerCaps);
+                    node.data.layer = thisFeaturePanel.addLayer(node.data.layerCaps,serverAddress);
                 }
 
                 thisFeaturePanel.wwd.redraw();
@@ -260,21 +261,21 @@ console.log(serverAddress);
         return result;
     };
 
-    FeaturePanel.prototype.addLayer = function (layerCaps) {
+    FeaturePanel.prototype.addLayer = function (layerCaps,serverAddress) {
         if (layerCaps.name) {
-            var resourcesUrl1 =serverAddress+"request=GetFeature&outputFormat=application/json&version=1.1.0&typeName="+layerCaps.name;
+            var resourcesUrl1 =serverAddress+"/wfs?request=GetFeature&outputFormat=application/json&version=1.1.0&typeName="+layerCaps.name;
             var wfsLayer = new WorldWind.RenderableLayer(layerCaps.name);
             var wfsGetFeature = new WorldWind.GeoJSONParser(resourcesUrl1);
             wfsGetFeature.load(null, shapeConfigurationCallback, wfsLayer);
 
 
-            layer.enabled = true;
-            this.wwd.addLayer(layer);
+            wfsLayer.enabled = true;
+            this.wwd.addLayer(wfsLayer);
             this.wwd.redraw();
 
             this.featuresPanel.synchronizeLayerList();
 
-            return layer;
+            return wfsLayer;
         }
 
         return null;
