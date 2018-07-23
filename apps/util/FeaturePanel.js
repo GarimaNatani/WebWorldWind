@@ -79,8 +79,8 @@ console.log(serverAddress);
             request = new XMLHttpRequest();
           // url = WorldWind.wfsUrlBuilder.fixGetMapString(serverAddress);
      var url=serverAddress;
-    url += "&request=getCapabilities";
-    console.log(url);
+    url += "/ows?service=wfs&version=2.0.0&request=getCapabilities";
+ //   console.log(url);
 
         request.open("GET", url, true);
         request.onreadystatechange = function () {
@@ -262,8 +262,8 @@ console.log(serverAddress);
 
     FeaturePanel.prototype.addLayer = function (layerCaps) {
         if (layerCaps.name) {
-            var resourcesUrl1 ="";
-            var wfsLayer = new WorldWind.RenderableLayer(layerCaps);
+            var resourcesUrl1 =serverAddress+"request=GetFeature&outputFormat=application/json&version=1.1.0&typeName="+layerCaps.name;
+            var wfsLayer = new WorldWind.RenderableLayer(layerCaps.name);
             var wfsGetFeature = new WorldWind.GeoJSONParser(resourcesUrl1);
             wfsGetFeature.load(null, shapeConfigurationCallback, wfsLayer);
 
