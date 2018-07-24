@@ -25,7 +25,8 @@ define(['../../src/WorldWind',
               LayersPanel,
               ProjectionMenu,
               FeaturePanel,
-              TimeSeriesPlayer) {
+              TimeSeriesPlayer,
+              shapeConfigurationCallback) {
         "use strict";
 
         var Wfs = function () {
@@ -51,11 +52,6 @@ define(['../../src/WorldWind',
             }
 
 
-           var resourcesUrl1 ="http://localhost:8080/geoserver/wfs?request=GetFeature&outputFormat=application/json&version=1.1.0&typeName=topp:states&propertyName=STATE_NAME,PERSONS&BBOX=-75.102613,40.212597,-72.361859,41.512517,EPSG:4326";
-            var wfsLayer = new WorldWind.RenderableLayer("WFS");
-            var wfsGetFeature = new WorldWind.GeoJSONParser(resourcesUrl1);
-            wfsGetFeature.load(null, shapeConfigurationCallback, wfsLayer);
-            this.wwd.addLayer(wfsLayer);
             // Start the view pointing to a longitude within the current time zone.
             this.wwd.navigator.lookAtLocation.latitude = 30;
             this.wwd.navigator.lookAtLocation.longitude = -(180 / 12) * ((new Date()).getTimezoneOffset() / 60);
@@ -63,16 +59,21 @@ define(['../../src/WorldWind',
             this.goToBox = new GoToBox(this.wwd);
             this.layersPanel = new LayersPanel(this.wwd);
             this.timeSeriesPlayer = new TimeSeriesPlayer(this.wwd);
-            this.FeaturePanel = new FeaturePanel(this.wwd, this.layersPanel, this.timeSeriesPlayer);
+            this.featurePanel = new FeaturePanel(this.wwd, this.layersPanel, this.timeSeriesPlayer);
             this.projectionMenu = new ProjectionMenu(this.wwd);
 
             this.layersPanel.timeSeriesPlayer = this.timeSeriesPlayer;
-
           //  this.FeaturePanel.attachServer("http://localhost:8080/geoserver/wfs");
-            
+
               };
 
-
+        var placemarkAttributes = new WorldWind.PlacemarkAttributes(null);
+        placemarkAttributes.imageScale = 0.05;
+        placemarkAttributes.imageColor = WorldWind.Color.WHITE;
+        placemarkAttributes.labelAttributes.offset = new WorldWind.Offset(
+            WorldWind.OFFSET_FRACTION, 0.5,
+            WorldWind.OFFSET_FRACTION, 1.5);
+        placemarkAttributes.imageSource = WorldWind.configuration.baseUrl + "images/white dot.png";
 
 
         return Wfs;
