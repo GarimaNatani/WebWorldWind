@@ -16,7 +16,7 @@ define([
         './cache/GpuResourceCache',
         './util/Logger',
         './navigate/LookAtNavigator',
-        './navigate/NavigatorState',
+     //   './navigate/NavigatorState',
         './pick/PickedObjectList',
         './geom/Rectangle',
         './geom/Sector',
@@ -34,7 +34,7 @@ define([
               GpuResourceCache,
               Logger,
               LookAtNavigator,
-              NavigatorState,
+       //       NavigatorState,
               PickedObjectList,
               Rectangle,
               Sector,
@@ -586,7 +586,7 @@ define([
             dc.reset();
             dc.globe = this.globe;
             dc.layers = this.layers;
-            dc.navigatorState = this.navigator.currentState();
+       //     dc.navigatorState = this.navigator.currentState();
             dc.verticalExaggeration = this.verticalExaggeration;
             dc.surfaceOpacity = this.surfaceOpacity;
             dc.deepPicking = this.deepPicking;
