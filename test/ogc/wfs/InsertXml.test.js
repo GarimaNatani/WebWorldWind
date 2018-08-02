@@ -1,0 +1,39 @@
+/*
+ * Copyright 2018 WorldWind Contributors
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+define([
+    'src/ogc/wfs/InsertXmlBuilder'
+], function (InsertXmlBuilder) {
+    "use strict";
+
+    describe("Constructor testing", function () {
+
+        it("should throw an exception when nothing is provided as an argument", function () {
+            expect((function () {
+                new InsertXmlBuilder(null)
+            })).toThrow();
+        });
+    });
+
+    describe("Build Url", function () {
+
+        it("should return Url", function () {
+            var wfsurl = new InsertXmlBuilder("Type");
+            var url = wfsurl;
+            expect(url).toBe("ok");
+        });
+    });
+
+});
