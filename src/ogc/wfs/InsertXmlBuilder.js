@@ -33,50 +33,58 @@ define([
          * configured InsertXmlBuilder.
          * @constructor
          */
-        var InsertXmlBuilder = function (Type) {
-
-            var shape = "123";
-            var line = line;
+        var InsertXmlBuilder = function (ServerUrl, typeName, type, coordinates) {
             var version = "1.0.0";
-            console.log(this.buildInsertFeatureXmlRequest(Type, shape, line, version));
+            return this.createBasewfsElement(ServerUrl, typeName, version, type, coordinates);
+            //   console.log(s);
         };
 
-        // Internal use only
-        InsertXmlBuilder.prototype.buildInsertFeatureXmlRequest = function (service, geom, type, version) {
-            console.log("hi");
-            var describeElement = this.createBasewfsElement("Transaction Service", version);
-            //  describeElement.appendChild(FeatureElement);
-            return describeElement;
 
-        };
+        InsertXmlBuilder.prototype.createBasewfsElement = function (ServerUrl, typeName, version, type, coordinates) {
 
-        InsertXmlBuilder.prototype.createBasewfsElement = function (elementName, version) {
             var xmlnsW = "http://www.opengis.net/wfs";
             var xmlnsT = "http://www.openplans.org/topp";
             var xmlnsG = "http://www.opengis.net/gml";
             var xmlnsX = "http://www.w3.org/2001/XMLSchema-instance";
+            var doc = document.implementation.createDocument(xmlnsW, 'wfs:Transaction', null);
+            doc.documentElement.setAttribute('service', 'wfs');
+            doc.documentElement.setAttribute('version', version);
+            doc.documentElement.setAttribute('xmlns:wfs', xmlnsW);
+            doc.documentElement.setAttribute('xmlns:topp', xmlnsT);
+            doc.documentElement.setAttribute('xmlns:gml', xmlnsG);
+            doc.documentElement.setAttribute('xmlns:xsi', xmlnsX);
+            var schemaLocation = "http://www.opengis.net/wfs http://schemas.opengis.net/wfs/1.0.0/WFS-transaction.xsd http://www.openplans.org/topp " + ServerUrl + "typename=" + typeName;
+            doc.documentElement.setAttribute('xmlns:xsi', schemaLocation);
+            var insert = doc.createElement('wfs:insert');
+            var typename = doc.createElement(typeName);
+            var geom = doc.createElement('topp:the_geom');
 
-            var doc = document.implementation.createDocument(xmlnsW, 'wfs', null);
-            doc.documentElement.setAttributeNS(xmlnsW, 'xmlns:wfs', 'http://www.opengis.net/wfs');
-            var foo = doc.createElementNS(xmlnsW, 'insert');
-            var bar = doc.createElementNS(xmlnsT, 'tasmania_roads');
-            bar.appendChild(document.createTextNode('topp:geom'));
-            foo.appendChild(bar);
-            doc.documentElement.appendChild(foo);
-
+            geom.appendChild(this.geometry(doc, type, coordinates));
+            typename.appendChild(geom);
+            insert.appendChild(typename);
+            doc.documentElement.appendChild(insert);
             return doc;
-
-
-            // var e1;
-            //    container = document.getElementById("ContainerBox");
-            //  newdiv = document.createElementNS("http://www.w3.org/1999/xhtml","div");
-            //   e1.document.createElementNS("xmlnswfs","122");
-            //e1 =document.createElementNS("xmlns:topp",InsertXmlBuilder.wfs2_XLMNS);
-            //e1 =document.createElementNS("xmlns:gml",InsertXmlBuilder.wfs3_XLMNS);
-            //e1 =document.createElementNS("xmlns:xsi",InsertXmlBuilder.wfs4_XLMNS);
-            //el.setAttribute("version", version);
-            //el.setAttribute(elementName,"WFS");
-            //   return el;
         };
+
+        InsertXmlBuilder.prototype.geometry = function (doc, type, coordinate) {
+
+            if (type === 'MultiLineString') {
+                var multiLine = doc.createElement('gml:MultiLineString');
+                multiLine.setAttribute('srsName', "http://www.opengis.net/gml/srs/epsg.xml#4326");
+                var lineStringMember = doc.createElement('gml:lineStringMember');
+                var lineString = doc.createElement('gml:LineString');
+
+                var coordinates = doc.createElement('gml:coordinates');
+                coordinates.setAttribute('decimal', ".");
+                coordinates.setAttribute('cs', ",");
+                coordinates.setAttribute('ts', " ");
+                coordinates.textContent = coordinate;
+                lineString.appendChild(coordinates);
+                lineStringMember.appendChild(lineString);
+                multiLine.appendChild(lineStringMember);
+            }
+            return multiLine;
+        };
+
         return InsertXmlBuilder;
     });
