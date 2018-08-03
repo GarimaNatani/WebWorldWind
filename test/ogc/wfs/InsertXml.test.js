@@ -31,11 +31,14 @@ define([
 
         it("should return Insert xml match", function () {
             var wfs = new InsertXmlBuilder("http://localhost:8080/geoserver/wfs/DescribeFeatureType?", "topp:tasmania_roads", "MultiLineString", "494475.71056415,5433016.8189323 494982.70115662,5435041.95096618");
-            expect(wfs).toBe("<wfs.:Transaction service=\"WFS\" version=\"1.0.0\"" +
-                "xmlns:wfs=\"http://www.opengis.net/wfs\"" +
-                "xmlns:topp=\"http://www.openplans.org/topp\"" +
-                "xmlns:gml=\"http://www.opengis.net/gml\"" +
-                "xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-ins\ttance\"" +
+            var oSerializer = new XMLSerializer();
+            var sXML = oSerializer.serializeToString(wfs);
+
+            expect(sXML).toBe("<wfs:Transaction service=\"WFS\" version=\"1.0.0\" " +
+                "xmlns:wfs=\"http://www.opengis.net/wfs\" " +
+                "xmlns:topp=\"http://www.openplans.org/topp\" " +
+                "xmlns:gml=\"http://www.opengis.net/gml\" " +
+                "xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" " +
                 "xsi:schemaLocation=\"http://www.opengis.net/wfs http://schemas.opengis.net/wfs/1.0.0/WFS-transaction.xsd http://www.openplans.org/topp http://localhost:8080/geoserver/wfs/DescribeFeatureType?typename=topp:tasmania_roads\">" +
                 "<wfs:Insert>" +
                 "<topp:tasmania_roads>" +
@@ -53,7 +56,7 @@ define([
                 "<topp:TYPE>alley</topp:TYPE>" +
                 "</topp:tasmania_roads>" +
                 "</wfs:Insert>" +
-                "</wfs.:Transaction>");
+                "</wfs:Transaction>");
         });
     });
 });

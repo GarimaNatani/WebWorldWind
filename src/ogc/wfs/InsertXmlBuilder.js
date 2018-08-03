@@ -47,21 +47,25 @@ define([
             var xmlnsG = "http://www.opengis.net/gml";
             var xmlnsX = "http://www.w3.org/2001/XMLSchema-instance";
             var doc = document.implementation.createDocument(xmlnsW, 'wfs:Transaction', null);
-            doc.documentElement.setAttribute('service', 'wfs');
+            doc.documentElement.setAttribute('service', 'WFS');
             doc.documentElement.setAttribute('version', version);
             doc.documentElement.setAttribute('xmlns:wfs', xmlnsW);
             doc.documentElement.setAttribute('xmlns:topp', xmlnsT);
             doc.documentElement.setAttribute('xmlns:gml', xmlnsG);
             doc.documentElement.setAttribute('xmlns:xsi', xmlnsX);
             var schemaLocation = "http://www.opengis.net/wfs http://schemas.opengis.net/wfs/1.0.0/WFS-transaction.xsd http://www.openplans.org/topp " + ServerUrl + "typename=" + typeName;
-            doc.documentElement.setAttribute('xmlns:xsi', schemaLocation);
-            var insert = doc.createElement('wfs:insert');
+            doc.documentElement.setAttribute('xsi:schemaLocation', schemaLocation);
+            var insert = doc.createElement('wfs:Insert');
             var typename = doc.createElement(typeName);
             var geom = doc.createElement('topp:the_geom');
 
             geom.appendChild(this.geometry(doc, type, coordinates));
+            var type =  doc.createElement('topp:TYPE');
+            type.textContent = 'alley';
             typename.appendChild(geom);
+            typename.appendChild(type);
             insert.appendChild(typename);
+
             doc.documentElement.appendChild(insert);
             return doc;
         };
