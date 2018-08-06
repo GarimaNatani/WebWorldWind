@@ -126,6 +126,12 @@ define([
             // Create the instance of the Delete Element.
         };
 
+        /**
+         * TODO: This method should return String representation of the internal XML Document.
+         */
+        WfsTransaction.prototype.serialize = function() {
+
+        };
 
         WfsTransaction.prototype.assembleDocument = function () {
             // Determine version

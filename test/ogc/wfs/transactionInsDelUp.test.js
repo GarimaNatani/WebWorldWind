@@ -16,10 +16,18 @@
 define([
     'src/ogc/wfs/InsertXmlBuilder',
     'src/ogc/wfs/DeleteXmlBuilder',
-    'src/ogc/wfs/UpdateXmlBuilder'
+    'src/shape/Path',
+    'src/shape/Polygon',
+    'src/geom/Position',
+    'src/ogc/wfs/UpdateXmlBuilder',
+    'src/ogc/wfs/WfsTransaction'
 ], function (InsertXmlBuilder,
              DeleteXmlBuilder,
-             UpdateXmlBuilder) {
+             Path,
+             Polygon,
+             Position,
+             UpdateXmlBuilder,
+             WfsTransaction) {
     "use strict";
 
     describe("Constructor testing", function () {
@@ -62,6 +70,7 @@ define([
                 "</wfs:Insert>" +
                 "</wfs:Transaction>");
         });
+
         it("should return Insert xml polygon match", function () {
             var wfs = new InsertXmlBuilder("http://localhost:8080/geoserver/wfs/DescribeFeatureType?", "topp:tasmania_roads", "Polygon", "-30.93597221374512 117.6290588378906 -30.94830513000489 117.6447219848633 -30.95219421386719 117.6465530395508 -30.95219421386719 117.6431121826172 -30.94802856445312 117.6386108398438 -30.94799995422363 117.6314163208008 -30.946138381958 117.62850189209 -30.94430541992188 117.6295852661133 -30.93280601501464 117.6240539550781 -30.92869377136231 117.624641418457 -30.92386054992676 117.6201400756836 -30.92111206054688 117.6206970214844 -30.92458343505859 117.6275863647461 -30.93597221374512 117.6290588378906");
             var oSerializer = new XMLSerializer();
@@ -89,6 +98,7 @@ define([
                 "</wfs:Insert>" +
                 "</wfs:Transaction>");
         });
+
         it("should return Delete xml", function () {
             var wfsD = new DeleteXmlBuilder("topp:tasmania_roads", "topp:TYPE");
             var oSerializer = new XMLSerializer();
@@ -160,6 +170,43 @@ define([
             "</wfs:Update>" +
             "</wfs:Transaction>");
         });
+
+        describe('should accept Polygon and provide the document for: ', function(){
+            var boundaries = [];
+            boundaries[0] = []; // outer boundary
+            boundaries[0].push(new Position(40, -100, 1e5));
+            boundaries[0].push(new Position(45, -110, 1e5));
+            boundaries[0].push(new Position(40, -120, 1e5));
+            boundaries[1] = []; // inner boundary
+            boundaries[1].push(new Position(41, -103, 1e5));
+            boundaries[1].push(new Position(44, -110, 1e5));
+            boundaries[1].push(new Position(41, -117, 1e5));
+            var polygon = new Polygon(boundaries, null);
+
+            // This is stub of the method. You have to finish the code.
+            it('insert', function(){
+                var wfsTransaction = WfsTransaction.create();
+                wfsTransaction.insert(polygon);
+            })
+        })
+
+        describe('should accept Path and provide the document for: ', function(){
+            var pathPositions = [];
+            pathPositions.push(new Position(40, -100, 1e4));
+            pathPositions.push(new Position(45, -110, 1e4));
+            pathPositions.push(new Position(46, -122, 1e4));
+
+            // Create the path.
+            var path = new Path(pathPositions, null);
+
+            // This is stub of the method. You have to finish the code.
+            it('insert', function(){
+                var wfsTransaction = WfsTransaction.create();
+                wfsTransaction.insert(path);
+
+                // E
+            })
+        })
     });
 
 });
