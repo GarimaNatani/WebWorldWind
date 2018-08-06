@@ -30,27 +30,100 @@ define([
          * Constructs an OGC Wfs Capabilities instance from an XML DOM.
          * @alias WfsTransaction
          * @constructor
+         * @private
          * @classdesc Represents the common properties of a Wfs Capabilities document. Common properties are parsed and
          * mapped to a plain javascript object model. Most fields can be accessed as properties named according to their
          * document names converted to camel case. This model supports version 1.0.0, 1.1.0 and 2.0.0 of the Wfs specification.
          * Not all properties are mapped to this representative javascript object model, but the provided XML dom is
          * maintained in xmlDom property for reference.
-         * @param {{}} xmlDom an XML DOM representing the Wfs Capabilities document.
+         * @param options {Object}
          * @throws {ArgumentError} If the specified XML DOM is null or undefined.
          */
-        var WfsTransaction = function (xmlDom) {
-            if (!xmlDom) {
-                throw new ArgumentError(
-                    Logger.logMessage(Logger.LEVEL_SEVERE, "WfsTransaction", "constructor", "missingDom"));
-            }
-
+        var WfsTransaction = function () {
             /**
              * The original unmodified XML document. Referenced for use in advanced cases.
              * @type {{}}
              */
-            this.xmlDom = xmlDom;
+            this._xmlDom = null;
 
-            this.assembleDocument();
+            this._schemas = [
+                {schemaNamespace: 'xmlns:gml', schemaUrl: 'http://www.opengis.net/gml'},
+                {schemaNamespace: 'xmlns:xsi', schemaUrl: 'http://www.w3.org/2001/XMLSchema-instance'}
+            ];
+        };
+
+        Object.defineProperties(WfsTransaction.prototype, {
+            xmlDom: {
+                get: function(){
+                    return this._xmlDom;
+                },
+                set: function(xmlDom) {
+                    this._xmlDom = xmlDom;
+                }
+            },
+
+            schemas: {
+                get: function() {
+                    return this._schemas;
+                },
+                set: function(schemas) {
+                    this._schemas = schemas;
+                }
+            }
+        });
+
+        /**
+         * It is possible to create the document either empty or with preexisting content retrieved from already
+         * existing XML. This will return the representation of WFS Transaction which can be modified.
+         * @param options {Object}
+         * @param options.xmlDom {XMLDocument} The document to be used. Optional.
+         * @param options.schemas {Object[]} The available schemas. Optional
+         */
+        WfsTransaction.create = function(options){
+            var wfsTransaction = new WfsTransaction(options);
+            if(options.xmlDom) {
+                wfsTransaction.xmlDom = options.xmlDom;
+                wfsTransaction.assembleDocument();
+                return wfsTransaction;
+            } else {
+                if(options.schemas) {
+                    wfsTransaction.schemas = options.schemas;
+                }
+                wfsTransaction.createBaseElement();
+                return wfsTransaction;
+            }
+        };
+
+        WfsTransaction.prototype.createBaseElement = function() {
+            var wfsNamespace = "http://www.opengis.net/wfs";
+
+            var baseTransactionDocument = document.implementation.createDocument(wfsNamespace, 'wfs:Transaction', null);
+            baseTransactionDocument.documentElement.setAttribute('service', 'WFS');
+            baseTransactionDocument.documentElement.setAttribute('version', version);
+            // Set correct XMLNS types.
+            baseTransactionDocument.documentElement.setAttribute('xmlns:wfs', wfsNamespace);
+
+            var urls = this.schemas.map(function(schema){
+                baseTransactionDocument.documentElement.setAttribute(schema.schemaNamespace, schema.schemaUrl);
+
+                return schema.schemaUrl;
+            });
+            var schemaLocation = "http://www.opengis.net/wfs " + urls;
+            baseTransactionDocument.documentElement.setAttribute('xsi:schemaLocation', schemaLocation);
+
+            return baseTransactionDocument;
+        };
+
+        WfsTransaction.prototype.insert = function() {
+            // Create the instance of the Insert Element
+        };
+
+        WfsTransaction.prototype.update = function() {
+            // Create the instance of the Update Element.
+        };
+
+        WfsTransaction.prototype.delete = function() {
+            // Create the instance of the Delete Element.
         };
 
 
@@ -120,6 +193,5 @@ define([
         };
 
         return WfsTransaction;
-
     })
 ;
