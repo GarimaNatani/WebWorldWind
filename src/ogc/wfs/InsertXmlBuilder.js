@@ -60,7 +60,7 @@ define([
             var geom = doc.createElement('topp:the_geom');
 
             geom.appendChild(this.geometry(doc, type, coordinates));
-            var type =  doc.createElement('topp:TYPE');
+            var type = doc.createElement('topp:TYPE');
             type.textContent = 'alley';
             typename.appendChild(geom);
             typename.appendChild(type);
@@ -77,7 +77,6 @@ define([
                 multiLine.setAttribute('srsName', "http://www.opengis.net/gml/srs/epsg.xml#4326");
                 var lineStringMember = doc.createElement('gml:lineStringMember');
                 var lineString = doc.createElement('gml:LineString');
-
                 var coordinates = doc.createElement('gml:coordinates');
                 coordinates.setAttribute('decimal', ".");
                 coordinates.setAttribute('cs', ",");
@@ -86,8 +85,26 @@ define([
                 lineString.appendChild(coordinates);
                 lineStringMember.appendChild(lineString);
                 multiLine.appendChild(lineStringMember);
+
+                return multiLine;
             }
-            return multiLine;
+
+            if (type === 'Polygon') {
+
+                var polygon = doc.createElement('gml:Polygon');
+                polygon.setAttribute('srsName', "urn:ogc:def:crs:EPSG::4326http://www.opengis.net/def/crs/epsg/0/4326");
+                polygon.setAttribute('gml:id', "P1");
+                var exter = doc.createElement('gml:exterior');
+                var LinearRing = doc.createElement('gml:LinearRing');
+                var posList = doc.createElement('gml:posList');
+                posList.textContent = coordinate;
+
+                LinearRing.appendChild(posList);
+                exter.appendChild(LinearRing);
+                polygon.appendChild(exter);
+                return polygon;
+            }
+            return null;
         };
 
         return InsertXmlBuilder;
