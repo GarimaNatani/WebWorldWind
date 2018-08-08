@@ -17,7 +17,6 @@ define([
                 throw new ArgumentError(
                     Logger.logMessage(Logger.LEVEL_SEVERE, "ShapeTranformer", "constructor", "missingDom"));
             }
-
             this.transform(polygon);
         };
 
@@ -32,4 +31,6 @@ define([
                 coordinates: [45, 56, 23]
             }
         };
-    });
+    return     ShapeTransformer;
+
+});
