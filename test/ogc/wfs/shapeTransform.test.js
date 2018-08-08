@@ -27,7 +27,7 @@ define([
 
     describe("Shape Transformer", function () {
 
-        it("should return ok", function () {
+        it("should return type", function () {
 
             var boundaries = [];
             boundaries[0] = []; // outer boundary

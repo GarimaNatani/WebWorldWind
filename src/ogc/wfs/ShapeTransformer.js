@@ -1,9 +1,15 @@
-define(['src/shapes/Path',
+define([
+        '../../error/ArgumentError',
+        '../../util/Logger',
+        'src/shapes/Path',
         'src/shapes/Polygon',
         'src/geom/Position'],
-    function (Path,
-              Polygon,
-              Position) {
+    function (
+        ArgumentError,
+        Logger,
+        Path,
+        Polygon,
+        Position) {
         "use strict";
 
         var ShapeTransformer = function (polygon) {
