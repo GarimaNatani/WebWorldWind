@@ -40,7 +40,7 @@ define([
             boundaries[1].push(new Position(41, -117, 1e5));
             var polygon = new Polygon(boundaries, null);
 
-            var ok = new ShapeTransformer(polygon);
+            var ok = ShapeTransformer.Transform(polygon);
 
             expect(ok).toBe("2018-06-02T10:08:44.847Z");
 
