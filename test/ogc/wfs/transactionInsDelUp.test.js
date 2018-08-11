@@ -32,16 +32,7 @@ define([
 
     "use strict";
 
-    describe("Constructor testing", function () {
-
-        it("should throw an exception when nothing is provided as an argument", function () {
-            expect((function () {
-                new InsertXmlBuilder(null)
-            })).toThrow();
-        });
-    });
-
-    describe("Build Url", function () {
+      describe("Build Url", function () {
 
         it("should return Insert xml match", function () {
             var schemas = [
@@ -175,17 +166,17 @@ define([
 
         it("should return Update xml", function () {
             var schemas = [
-
+                {schemaNamespace: 'xmlns:topp', schemaUrl: 'http://www.openplans.org/topp'},
                 {schemaNamespace: 'xmlns:ogc', schemaUrl: 'http://www.opengis.net/ogc'},
                 {schemaNamespace: 'xmlns:wfs', schemaUrl: 'http://www.opengis.net/wfs'},
-                {schemaNamespace: 'xmlns:topp', schemaUrl: 'http://www.openplans.org/topp'},
+
 
             ];
-            var propertyName = 'topp:TYPE';
+            var propertyName = 'TYPE';
             var typeName = 'topp:tasmania_roads';
             var value = 'street';
             var FeatureId = 'tasmania_roads.1';
-            var wfsU = new WfsTransaction.update(schema, typeName, propertyName, value, FeatureId);
+            var wfsU = new WfsTransaction.update(schemas, typeName, propertyName, value, FeatureId);
             var sXML = WfsTransaction.serialize(wfsU);
             expect(sXML).toBe("<wfs:Transaction service=\"WFS\" version=\"1.0.0\" " +
                 "xmlns:topp=\"http://www.openplans.org/topp\" " +
