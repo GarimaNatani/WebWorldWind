@@ -15,24 +15,19 @@
  */
 
 define([
-    'src/ogc/wfs/InsertXmlBuilder',
-    'src/ogc/wfs/DeleteXmlBuilder',
-    'src/ogc/wfs/UpdateXmlBuilder',
     'src/ogc/wfs/WfsTransaction',
     'src/shapes/Path',
     'src/shapes/Polygon',
     'src/geom/Position'
-], function (InsertXmlBuilder,
-             DeleteXmlBuilder,
-             UpdateXmlBuilder,
-             WfsTransaction,
-             Path,
-             Polygon,
-             Position) {
+], function (
+    WfsTransaction,
+    Path,
+    Polygon,
+    Position) {
 
     "use strict";
 
-      describe("Build Url", function () {
+    describe("Build Url", function () {
 
         it("should return Insert xml match", function () {
             var schemas = [
@@ -204,7 +199,10 @@ define([
                 {schemaNamespace: 'xmlns:wfs', schemaUrl: 'http://www.opengis.net/wfs'},
                 {schemaNamespace: 'xmlns:gml', schemaUrl: 'http://www.opengis.net/gml'},
                 {schemaNamespace: 'xmlns:xsi', schemaUrl: 'http://www.w3.org/2001/XMLSchema-instance'},
-                {schemaNamespace: 'xsi:schemaLocation', schemaUrl: 'http://www.opengis.net/wfs http://schemas.opengis.net/wfs/1.0.0/WFS-transaction.xsd'},
+                {
+                    schemaNamespace: 'xsi:schemaLocation',
+                    schemaUrl: 'http://www.opengis.net/wfs http://schemas.opengis.net/wfs/1.0.0/WFS-transaction.xsd'
+                },
 
             ];
             var propertyName = 'the_geom';

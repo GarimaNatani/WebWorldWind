@@ -32,7 +32,7 @@ define([
 
         it("should return Url", function () {
             var wfsurl = new WfsUrlBuilder("http://localhost:8080/geoserver/wfs", "STATE_NAME,PERSONS", "topp:states", "1.1.0");
-            var url = wfsurl.urlForGetFeature("topp:states","application/json");
+            var url = wfsurl.urlForGetFeature("topp:states", "application/json");
             expect(url).toBe("http://localhost:8080/geoserver/wfs?&request=GetFeature&version=1.1.0&typeName=topp:states&propertyName=STATE_NAME,PERSONS");
         });
     });

@@ -112,13 +112,13 @@ define([
                 expect(name).toBe("ImplementsQuery");
             });
 
-             it("should have Id_Capabilities", function () {
+            it("should have Id_Capabilities", function () {
                 var wfsCaps = new WfsCapabilities(xmlDom);
                 var name = wfsCaps.filterCapabilities.idCap.resourceIdentifierName[0];
                 expect(name).toBe("fes:ResourceId");
             });
 
-             it("should have Scalar_Capabilities and ComparisonOperators as PropertyIsLessThan", function () {
+            it("should have Scalar_Capabilities and ComparisonOperators as PropertyIsLessThan", function () {
                 var wfsCaps = new WfsCapabilities(xmlDom);
                 var name = wfsCaps.filterCapabilities.assCap.comparisonOperators.attributeName[0];
                 expect(name).toBe("PropertyIsLessThan");
