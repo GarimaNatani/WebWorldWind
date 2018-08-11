@@ -58,7 +58,6 @@ define([
             var insert = doc.createElement('wfs:Insert');
             var typename = doc.createElement(typeName);
             var geom = doc.createElement('topp:the_geom');
-
             geom.appendChild(this.geometry(doc, type, coordinates));
             var type = doc.createElement('topp:TYPE');
             type.textContent = 'alley';

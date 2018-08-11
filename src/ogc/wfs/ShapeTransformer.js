@@ -16,20 +16,25 @@ define([
          * Accepts AbstractShape from the Shapes and transforms in the coordinates with the type that can be used by the
          * XML Builders.
          */
-        var ShapeTransformer = function () {
-            this.data = {
-                type: 'LineString',
-                coordinates: [45, 56, 23]
-            };
+        var ShapeTransformer = {
+
+            type: 'LineString',
+            coordinates: [45, 56, 23],
+            Transform: function (shape) {
+
+                var shapeVal = {};
+                if (shape.boundaries) {
+                    shapeVal.type = 'Polygon';
+                    shapeVal.coordinates = shape.boundaries;
+                }
+                if (shape.positions) {
+                    shapeVal.type = 'MultiLineString';
+                    shapeVal.coordinates = shape.positions;
+                }
+
+                return shapeVal;
+            }
         };
+            return ShapeTransformer;
 
-        ShapeTransformer.Transform = function (shape) {
-
-            console.log(shape);
-            return {
-                type: 'LineString',
-                coordinates: [45, 56, 23]
-            };
-        };
-
-    });
+    } );

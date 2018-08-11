@@ -19,7 +19,7 @@ define([
     'src/shapes/Polygon',
     'src/geom/Position'
 ], function (ShapeTransformer,
-             ath,
+             Path,
              Polygon,
              Position) {
     "use strict";
@@ -40,10 +40,27 @@ define([
             boundaries[1].push(new Position(41, -117, 1e5));
             var polygon = new Polygon(boundaries, null);
 
-            var ok = ShapeTransformer.Transform(polygon);
+            var Type = ShapeTransformer.Transform(polygon);
 
-            expect(ok).toBe("2018-06-02T10:08:44.847Z");
+            expect(Type.type).toBe('Polygon');
 
         });
+
+        it("should return Point", function () {
+
+            var pathPositions = [];
+            pathPositions.push(new Position(40, -100, 1e4));
+            pathPositions.push(new Position(45, -110, 1e4));
+            pathPositions.push(new Position(46, -122, 1e4));
+            // Create the path.
+           var path = new Path(pathPositions, null);
+            var Type = ShapeTransformer.Transform(path);
+
+            expect(Type.type).toBe('MultiLineString');
+
+        });
+
+
+
     });
 });

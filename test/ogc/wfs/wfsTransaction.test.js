@@ -47,23 +47,24 @@ define([
             xhr.send(null);
         });
 
-        describe("Version", function () {
+        describe("Response", function () {
 
             it("should have version 2.0.0 ", function () {
-                var wfsTrans = new WfsTransaction(xmlDom);
+             //   var wfsTrans = new WfsTransaction(xmlDom);
+                var wfsTrans= WfsTransaction.create(xmlDom);
                 var version = wfsTrans.version;
                 expect(version).toBe("2.0.2");
             });
 
 
             it("should have totalInserted 3", function () {
-                var wfsTrans = new WfsTransaction(xmlDom);
+                var wfsTrans= WfsTransaction.create(xmlDom);
                 var totalInserted = wfsTrans.totalInserted;
                 expect(totalInserted).toBe("3");
             });
 
             it("should have feature as Statement 1", function () {
-                var wfsTrans = new WfsTransaction(xmlDom);
+                var wfsTrans= WfsTransaction.create(xmlDom);
                 var feature = wfsTrans.handle[0];
                 expect(feature).toBe("Statement 1");
             });

@@ -44,9 +44,9 @@ define([
              * The original unmodified XML document. Referenced for use in advanced cases.
              * @type {{}}
              */
-            this._xmlDom = null;
+            this.xmlDom = null;
 
-            this._schemas = [
+            this.schemas = [
                 {schemaNamespace: 'xmlns:gml', schemaUrl: 'http://www.opengis.net/gml'},
                 {schemaNamespace: 'xmlns:xsi', schemaUrl: 'http://www.w3.org/2001/XMLSchema-instance'}
             ];
@@ -54,19 +54,19 @@ define([
 
         Object.defineProperties(WfsTransaction.prototype, {
             xmlDom: {
-                get: function(){
+                get: function () {
                     return this._xmlDom;
                 },
-                set: function(xmlDom) {
+                set: function (xmlDom) {
                     this._xmlDom = xmlDom;
                 }
             },
 
             schemas: {
-                get: function() {
+                get: function () {
                     return this._schemas;
                 },
-                set: function(schemas) {
+                set: function (schemas) {
                     this._schemas = schemas;
                 }
             }
@@ -79,57 +79,48 @@ define([
          * @param options.xmlDom {XMLDocument} The document to be used. Optional.
          * @param options.schemas {Object[]} The available schemas. Optional
          */
-        WfsTransaction.create = function(options){
+        WfsTransaction.create = function (options) {
             var wfsTransaction = new WfsTransaction(options);
-            if(options.xmlDom) {
-                wfsTransaction.xmlDom = options.xmlDom;
-                wfsTransaction.assembleDocument();
-                return wfsTransaction;
-            } else {
-                if(options.schemas) {
-                    wfsTransaction.schemas = options.schemas;
-                }
-                wfsTransaction.createBaseElement();
-                return wfsTransaction;
-            }
-        };
+            wfsTransaction.xmlDom = options;
+            wfsTransaction.assembleDocument();
+            return wfsTransaction;
 
-        WfsTransaction.prototype.createBaseElement = function() {
+        } ;
+
+        WfsTransaction.prototype.createBaseElement = function () {
             var wfsNamespace = "http://www.opengis.net/wfs";
-
+            var version = "1.0.0";
             var baseTransactionDocument = document.implementation.createDocument(wfsNamespace, 'wfs:Transaction', null);
             baseTransactionDocument.documentElement.setAttribute('service', 'WFS');
             baseTransactionDocument.documentElement.setAttribute('version', version);
             // Set correct XMLNS types.
-            baseTransactionDocument.documentElement.setAttribute('xmlns:wfs', wfsNamespace);
-
-            var urls = this.schemas.map(function(schema){
-                baseTransactionDocument.documentElement.setAttribute(schema.schemaNamespace, schema.schemaUrl);
-
-                return schema.schemaUrl;
-            });
-            var schemaLocation = "http://www.opengis.net/wfs " + urls;
-            baseTransactionDocument.documentElement.setAttribute('xsi:schemaLocation', schemaLocation);
+            var length = this.schemas.length;
+            for (var t = 0; t < length; t++) {
+                baseTransactionDocument.documentElement.setAttribute(this.schemas[t].schemaNamespace, this.schemas[t].schemaUrl);
+            }
 
             return baseTransactionDocument;
         };
 
-        WfsTransaction.prototype.insert = function() {
-            // Create the instance of the Insert Element
+        WfsTransaction.insert = function (schemas, shape) {
+            var wfsTransaction = new WfsTransaction(schemas);
+            wfsTransaction.schemas = schemas;
+            var baseElement = wfsTransaction.createBaseElement(schemas);
+
         };
 
-        WfsTransaction.prototype.update = function() {
+        WfsTransaction.prototype.update = function () {
             // Create the instance of the Update Element.
         };
 
-        WfsTransaction.prototype.delete = function() {
+        WfsTransaction.prototype.delete = function () {
             // Create the instance of the Delete Element.
         };
 
         /**
          * TODO: This method should return String representation of the internal XML Document.
          */
-        WfsTransaction.prototype.serialize = function() {
+        WfsTransaction.prototype.serialize = function () {
 
         };
 
@@ -148,7 +139,7 @@ define([
                 if (child.localName === "TransactionSummary") {
                     this.transactionSummary(child);
                 } else if (child.localName === "InsertResults") {
-                     this.insertResults(child);
+                    this.insertResults(child);
                 }
             }
         };
@@ -176,10 +167,10 @@ define([
             var children = element.children || element.childNodes;
             for (var c = 0; c < children.length; c++) {
                 var child = children[c];
-                 if (child.localName === "Feature") {
+                if (child.localName === "Feature") {
                     this.handle = this.handle || [];
                     this.handle.push(child.getAttribute("handle"));
-                    this.resourceId =  this.resourceId || [];
+                    this.resourceId = this.resourceId || [];
                     this.resourceId.push(this.getResourceId(child));
                 }
             }
@@ -199,5 +190,6 @@ define([
         };
 
         return WfsTransaction;
-    })
+    }
+)
 ;
