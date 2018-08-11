@@ -19,11 +19,18 @@
 
 define([
         '../../error/ArgumentError',
-        '../../util/Logger'
+        '../../util/Logger',
+        'src/ogc/wfs/InsertXmlBuilder',
+        'src/ogc/wfs/DeleteXmlBuilder',
+        'src/ogc/wfs/UpdateXmlBuilder'
     ],
 
     function (ArgumentError,
-              Logger) {
+              Logger,
+              InsertXmlBuilder,
+              DeleteXmlBuilder,
+              UpdateXmlBuilder
+    ) {
         "use strict";
 
         /**
@@ -85,7 +92,7 @@ define([
             wfsTransaction.assembleDocument();
             return wfsTransaction;
 
-        } ;
+        };
 
         WfsTransaction.prototype.createBaseElement = function () {
             var wfsNamespace = "http://www.opengis.net/wfs";
@@ -102,26 +109,41 @@ define([
             return baseTransactionDocument;
         };
 
-        WfsTransaction.insert = function (schemas, shape) {
+        WfsTransaction.insert = function (schemas, shape, typeName) {
             var wfsTransaction = new WfsTransaction(schemas);
             wfsTransaction.schemas = schemas;
             var baseElement = wfsTransaction.createBaseElement(schemas);
+            return InsertXmlBuilder.Insert(baseElement, shape, typeName);
 
         };
 
-        WfsTransaction.prototype.update = function () {
+        WfsTransaction.update = function (schemas, typeName, propertyName, value, FeatureId) {
             // Create the instance of the Update Element.
+            var wfsTransaction = new WfsTransaction(schemas);
+            wfsTransaction.schemas = schemas;
+            var baseElement = wfsTransaction.createBaseElement(schemas);
+           if (propertyName === 'the_geom')
+                return UpdateXmlBuilder.updateGeom(baseElement,typeName, propertyName, value, FeatureId);
+            else
+                return UpdateXmlBuilder.Update(baseElement,typeName, propertyName, value, FeatureId);
+
+
         };
 
-        WfsTransaction.prototype.delete = function () {
-            // Create the instance of the Delete Element.
+        WfsTransaction.delete = function (schemas, typeName, property) {
+            var wfsTransaction = new WfsTransaction(schemas);
+            wfsTransaction.schemas = schemas;
+            var baseElement = wfsTransaction.createBaseElement(schemas);
+            return DeleteXmlBuilder.Delete(baseElement, typeName, property);  // Create the instance of the Delete Element.
         };
 
         /**
          * TODO: This method should return String representation of the internal XML Document.
          */
-        WfsTransaction.prototype.serialize = function () {
-
+        WfsTransaction.serialize = function (wfs) {
+            var oSerializer = new XMLSerializer();
+            var sXML = oSerializer.serializeToString(wfs);
+            return sXML;
         };
 
         WfsTransaction.prototype.assembleDocument = function () {

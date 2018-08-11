@@ -45,8 +45,55 @@ define([
 
         it("should return Insert xml match", function () {
             var schemas = [
+
+                {schemaNamespace: 'xmlns:wfs', schemaUrl: 'http://www.opengis.net/wfs'},
+                {schemaNamespace: 'xmlns:topp', schemaUrl: 'http://www.openplans.org/topp'},
                 {schemaNamespace: 'xmlns:gml', schemaUrl: 'http://www.opengis.net/gml'},
                 {schemaNamespace: 'xmlns:xsi', schemaUrl: 'http://www.w3.org/2001/XMLSchema-instance'},
+                {
+                    schemaNamespace: 'xsi:schemaLocation',
+                    schemaUrl: 'http://www.opengis.net/wfs http://schemas.opengis.net/wfs/1.0.0/WFS-transaction.xsd http://www.openplans.org/topp http://localhost:8080/geoserver/wfs/DescribeFeatureType?typename=topp:tasmania_roads'
+                }
+            ];
+
+            var pathPositions = [];
+            pathPositions.push(new Position(40, -100, 1e4));
+            pathPositions.push(new Position(45, -110, 1e4));
+            pathPositions.push(new Position(46, -122, 1e4));
+            // Create the path.
+            var path = new Path(pathPositions, null);
+            var typeName = 'topp:tasmania_roads';
+            var wfs = (WfsTransaction.insert(schemas, path, typeName));
+            var sXML = WfsTransaction.serialize(wfs);
+
+            expect(sXML).toBe("<wfs:Transaction service=\"WFS\" version=\"1.0.0\" " +
+                "xmlns:wfs=\"http://www.opengis.net/wfs\" " +
+                "xmlns:topp=\"http://www.openplans.org/topp\" " +
+                "xmlns:gml=\"http://www.opengis.net/gml\" " +
+                "xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" " +
+                "xsi:schemaLocation=\"http://www.opengis.net/wfs http://schemas.opengis.net/wfs/1.0.0/WFS-transaction.xsd http://www.openplans.org/topp http://localhost:8080/geoserver/wfs/DescribeFeatureType?typename=topp:tasmania_roads\">" +
+                "<wfs:Insert>" +
+                "<topp:tasmania_roads>" +
+                "<topp:the_geom>" +
+                "<gml:MultiLineString srsName=\"http://www.opengis.net/gml/srs/epsg.xml#4326\">" +
+                "<gml:lineStringMember>" +
+                "<gml:LineString>" +
+                "<gml:coordinates decimal=\".\" cs=\",\" ts=\" \">" +
+                "(40°, -100°, 10000),(45°, -110°, 10000),(46°, -122°, 10000)" +
+                "</gml:coordinates>" +
+                "</gml:LineString>" +
+                "</gml:lineStringMember>" +
+                "</gml:MultiLineString>" +
+                "</topp:the_geom>" +
+                "<topp:TYPE>alley</topp:TYPE>" +
+                "</topp:tasmania_roads>" +
+                "</wfs:Insert>" +
+                "</wfs:Transaction>");
+        });
+
+        it("should return Insert xml polygon match", function () {
+            var schemas = [
+
                 {schemaNamespace: 'xmlns:wfs', schemaUrl: 'http://www.opengis.net/wfs'},
                 {schemaNamespace: 'xmlns:topp', schemaUrl: 'http://www.openplans.org/topp'},
                 {schemaNamespace: 'xmlns:gml', schemaUrl: 'http://www.opengis.net/gml'},
@@ -68,38 +115,9 @@ define([
             boundaries[1].push(new Position(41, -117, 1e5));
             var polygon = new Polygon(boundaries, null);
 
-            var wfs = WfsTransaction.insert(schemas, polygon);
-            var oSerializer = new XMLSerializer();
-            var sXML = oSerializer.serializeToString(wfs);
-            expect(sXML).toBe("<wfs:Transaction service=\"WFS\" version=\"1.0.0\" " +
-                "xmlns:wfs=\"http://www.opengis.net/wfs\" " +
-                "xmlns:topp=\"http://www.openplans.org/topp\" " +
-                "xmlns:gml=\"http://www.opengis.net/gml\" " +
-                "xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" " +
-                "xsi:schemaLocation=\"http://www.opengis.net/wfs http://schemas.opengis.net/wfs/1.0.0/WFS-transaction.xsd http://www.openplans.org/topp http://localhost:8080/geoserver/wfs/DescribeFeatureType?typename=topp:tasmania_roads\">" +
-                "<wfs:Insert>" +
-                "<topp:tasmania_roads>" +
-                "<topp:the_geom>" +
-                "<gml:MultiLineString srsName=\"http://www.opengis.net/gml/srs/epsg.xml#4326\">" +
-                "<gml:lineStringMember>" +
-                "<gml:LineString>" +
-                "<gml:coordinates decimal=\".\" cs=\",\" ts=\" \">" +
-                "494475.71056415,5433016.8189323 494982.70115662,5435041.95096618" +
-                "</gml:coordinates>" +
-                "</gml:LineString>" +
-                "</gml:lineStringMember>" +
-                "</gml:MultiLineString>" +
-                "</topp:the_geom>" +
-                "<topp:TYPE>alley</topp:TYPE>" +
-                "</topp:tasmania_roads>" +
-                "</wfs:Insert>" +
-                "</wfs:Transaction>");
-        });
-
-        it("should return Insert xml polygon match", function () {
-            var wfs = new InsertXmlBuilder("http://localhost:8080/geoserver/wfs/DescribeFeatureType?", "topp:tasmania_roads", "Polygon", "-30.93597221374512 117.6290588378906 -30.94830513000489 117.6447219848633 -30.95219421386719 117.6465530395508 -30.95219421386719 117.6431121826172 -30.94802856445312 117.6386108398438 -30.94799995422363 117.6314163208008 -30.946138381958 117.62850189209 -30.94430541992188 117.6295852661133 -30.93280601501464 117.6240539550781 -30.92869377136231 117.624641418457 -30.92386054992676 117.6201400756836 -30.92111206054688 117.6206970214844 -30.92458343505859 117.6275863647461 -30.93597221374512 117.6290588378906");
-            var oSerializer = new XMLSerializer();
-            var sXML = oSerializer.serializeToString(wfs);
+            var typeName = 'topp:tasmania_roads';
+            var wfs = (WfsTransaction.insert(schemas, polygon, typeName));
+            var sXML = WfsTransaction.serialize(wfs);
 
             expect(sXML).toBe("<wfs:Transaction service=\"WFS\" version=\"1.0.0\" " +
                 "xmlns:wfs=\"http://www.opengis.net/wfs\" " +
@@ -113,7 +131,7 @@ define([
                 "<gml:Polygon srsName=\"urn:ogc:def:crs:EPSG::4326http://www.opengis.net/def/crs/epsg/0/4326\" gml:id=\"P1\">" +
                 "<gml:exterior>" +
                 "<gml:LinearRing>" +
-                "<gml:posList>-30.93597221374512 117.6290588378906 -30.94830513000489 117.6447219848633 -30.95219421386719 117.6465530395508 -30.95219421386719 117.6431121826172 -30.94802856445312 117.6386108398438 -30.94799995422363 117.6314163208008 -30.946138381958 117.62850189209 -30.94430541992188 117.6295852661133 -30.93280601501464 117.6240539550781 -30.92869377136231 117.624641418457 -30.92386054992676 117.6201400756836 -30.92111206054688 117.6206970214844 -30.92458343505859 117.6275863647461 -30.93597221374512 117.6290588378906</gml:posList>" +
+                "<gml:posList>(40°, -100°, 100000),(45°, -110°, 100000),(40°, -120°, 100000),(41°, -103°, 100000),(44°, -110°, 100000),(41°, -117°, 100000)</gml:posList>" +
                 "</gml:LinearRing>" +
                 "</gml:exterior>" +
                 "</gml:Polygon>" +
@@ -125,9 +143,19 @@ define([
         });
 
         it("should return Delete xml", function () {
-            var wfsD = new DeleteXmlBuilder("topp:tasmania_roads", "topp:TYPE");
-            var oSerializer = new XMLSerializer();
-            var sXML = oSerializer.serializeToString(wfsD);
+            // var wfsD = new DeleteXmlBuilder("topp:tasmania_roads", "topp:TYPE");
+            var schemas = [
+
+                {schemaNamespace: 'xmlns:cdf', schemaUrl: 'http://www.opengis.net/cite/data'},
+                {schemaNamespace: 'xmlns:ogc', schemaUrl: 'http://www.opengis.net/ogc'},
+                {schemaNamespace: 'xmlns:wfs', schemaUrl: 'http://www.opengis.net/wfs'},
+                {schemaNamespace: 'xmlns:topp', schemaUrl: 'http://www.openplans.org/topp'},
+
+            ];
+            var propertyName = 'topp:TYPE';
+            var typeName = 'topp:tasmania_roads';
+            var wfs = WfsTransaction.delete(schemas, typeName, propertyName);
+            var sXML = WfsTransaction.serialize(wfs);
 
             expect(sXML).toBe("<wfs:Transaction service=\"WFS\" version=\"1.0.0\" " +
                 "xmlns:cdf=\"http://www.opengis.net/cite/data\" " +
@@ -146,9 +174,19 @@ define([
         });
 
         it("should return Update xml", function () {
-            var wfsU = new UpdateXmlBuilder("topp:tasmania_roads", "TYPE", "street", "tasmania_roads.1");
-            var oSerializer = new XMLSerializer();
-            var sXML = oSerializer.serializeToString(wfsU);
+            var schemas = [
+
+                {schemaNamespace: 'xmlns:ogc', schemaUrl: 'http://www.opengis.net/ogc'},
+                {schemaNamespace: 'xmlns:wfs', schemaUrl: 'http://www.opengis.net/wfs'},
+                {schemaNamespace: 'xmlns:topp', schemaUrl: 'http://www.openplans.org/topp'},
+
+            ];
+            var propertyName = 'topp:TYPE';
+            var typeName = 'topp:tasmania_roads';
+            var value = 'street';
+            var FeatureId = 'tasmania_roads.1';
+            var wfsU = new WfsTransaction.update(schema, typeName, propertyName, value, FeatureId);
+            var sXML = WfsTransaction.serialize(wfsU);
             expect(sXML).toBe("<wfs:Transaction service=\"WFS\" version=\"1.0.0\" " +
                 "xmlns:topp=\"http://www.openplans.org/topp\" " +
                 "xmlns:ogc=\"http://www.opengis.net/ogc\" " +
@@ -166,7 +204,23 @@ define([
         });
 
         it("should return Update geom xml", function () {
-            var wfsU = new UpdateXmlBuilder("topp:tasmania_roads", "the_geom", "500000,5450000,0 540000,5450000,0", "tasmania_roads.1");
+
+            var schemas = [
+
+
+                {schemaNamespace: 'xmlns:topp', schemaUrl: 'http://www.openplans.org/topp'},
+                {schemaNamespace: 'xmlns:ogc', schemaUrl: 'http://www.opengis.net/ogc'},
+                {schemaNamespace: 'xmlns:wfs', schemaUrl: 'http://www.opengis.net/wfs'},
+                {schemaNamespace: 'xmlns:gml', schemaUrl: 'http://www.opengis.net/gml'},
+                {schemaNamespace: 'xmlns:xsi', schemaUrl: 'http://www.w3.org/2001/XMLSchema-instance'},
+                {schemaNamespace: 'xsi:schemaLocation', schemaUrl: 'http://www.opengis.net/wfs http://schemas.opengis.net/wfs/1.0.0/WFS-transaction.xsd'},
+
+            ];
+            var propertyName = 'the_geom';
+            var typeName = 'topp:tasmania_roads';
+            var value = '500000,5450000,0 540000,5450000,0';
+            var FeatureId = 'tasmania_roads.1';
+            var wfsU = new WfsTransaction.update(schemas, typeName, propertyName, value, FeatureId);
             var oSerializer = new XMLSerializer();
             var sXML = oSerializer.serializeToString(wfsU);
             expect(sXML).toBe("<wfs:Transaction service=\"WFS\" version=\"1.0.0\" " +

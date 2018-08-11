@@ -18,8 +18,7 @@ define([
          */
         var ShapeTransformer = {
 
-            type: 'LineString',
-            coordinates: [45, 56, 23],
+
             Transform: function (shape) {
 
                 var shapeVal = {};

@@ -16,12 +16,13 @@
 /**
  * @exports InsertXmlBuilder
  */
-define([
+define(['src/ogc/wfs/ShapeTransformer',
         '../../error/ArgumentError',
         '../../util/Logger',
         '../../util/Promise'
     ],
-    function (ArgumentError,
+    function (ShapeTransformer,
+              ArgumentError,
               Logger,
               Promise
     ) {
@@ -33,78 +34,61 @@ define([
          * configured InsertXmlBuilder.
          * @constructor
          */
-        var InsertXmlBuilder = function (ServerUrl, typeName, type, coordinates) {
-            var version = "1.0.0";
-            return this.createBasewfsElement(ServerUrl, typeName, version, type, coordinates);
-            //   console.log(s);
-        };
+        var InsertXmlBuilder = {
+            Insert: function (doc, shape, typeName) {
 
+                var insert = doc.createElement('wfs:Insert');
+                var typename = doc.createElement(typeName);
+                var geom = doc.createElement('topp:the_geom');
 
-        InsertXmlBuilder.prototype.createBasewfsElement = function (ServerUrl, typeName, version, type, coordinates) {
+                geom.appendChild(InsertXmlBuilder.geometry(doc, ShapeTransformer.Transform(shape).type, ShapeTransformer.Transform(shape).coordinates));
+                var type = doc.createElement('topp:TYPE');
+                type.textContent = 'alley';
+                typename.appendChild(geom);
+                typename.appendChild(type);
+                insert.appendChild(typename);
+                doc.documentElement.appendChild(insert);
+                return doc;
+            },
 
-            var xmlnsW = "http://www.opengis.net/wfs";
-            var xmlnsT = "http://www.openplans.org/topp";
-            var xmlnsG = "http://www.opengis.net/gml";
-            var xmlnsX = "http://www.w3.org/2001/XMLSchema-instance";
-            var doc = document.implementation.createDocument(xmlnsW, 'wfs:Transaction', null);
-            doc.documentElement.setAttribute('service', 'WFS');
-            doc.documentElement.setAttribute('version', version);
-            doc.documentElement.setAttribute('xmlns:wfs', xmlnsW);
-            doc.documentElement.setAttribute('xmlns:topp', xmlnsT);
-            doc.documentElement.setAttribute('xmlns:gml', xmlnsG);
-            doc.documentElement.setAttribute('xmlns:xsi', xmlnsX);
-            var schemaLocation = "http://www.opengis.net/wfs http://schemas.opengis.net/wfs/1.0.0/WFS-transaction.xsd http://www.openplans.org/topp " + ServerUrl + "typename=" + typeName;
-            doc.documentElement.setAttribute('xsi:schemaLocation', schemaLocation);
-            var insert = doc.createElement('wfs:Insert');
-            var typename = doc.createElement(typeName);
-            var geom = doc.createElement('topp:the_geom');
-            geom.appendChild(this.geometry(doc, type, coordinates));
-            var type = doc.createElement('topp:TYPE');
-            type.textContent = 'alley';
-            typename.appendChild(geom);
-            typename.appendChild(type);
-            insert.appendChild(typename);
+            geometry: function (doc, type, coordinate) {
 
-            doc.documentElement.appendChild(insert);
-            return doc;
-        };
+                if (type === 'MultiLineString') {
+                    var multiLine = doc.createElement('gml:MultiLineString');
+                    multiLine.setAttribute('srsName', "http://www.opengis.net/gml/srs/epsg.xml#4326");
+                    var lineStringMember = doc.createElement('gml:lineStringMember');
+                    var lineString = doc.createElement('gml:LineString');
+                    var coordinates = doc.createElement('gml:coordinates');
+                    coordinates.setAttribute('decimal', ".");
+                    coordinates.setAttribute('cs', ",");
+                    coordinates.setAttribute('ts', " ");
+                    coordinates.textContent = coordinate;
+                    lineString.appendChild(coordinates);
+                    lineStringMember.appendChild(lineString);
+                    multiLine.appendChild(lineStringMember);
 
-        InsertXmlBuilder.prototype.geometry = function (doc, type, coordinate) {
+                    return multiLine;
+                }
 
-            if (type === 'MultiLineString') {
-                var multiLine = doc.createElement('gml:MultiLineString');
-                multiLine.setAttribute('srsName', "http://www.opengis.net/gml/srs/epsg.xml#4326");
-                var lineStringMember = doc.createElement('gml:lineStringMember');
-                var lineString = doc.createElement('gml:LineString');
-                var coordinates = doc.createElement('gml:coordinates');
-                coordinates.setAttribute('decimal', ".");
-                coordinates.setAttribute('cs', ",");
-                coordinates.setAttribute('ts', " ");
-                coordinates.textContent = coordinate;
-                lineString.appendChild(coordinates);
-                lineStringMember.appendChild(lineString);
-                multiLine.appendChild(lineStringMember);
+                if (type === 'Polygon') {
 
-                return multiLine;
+                    var polygon = doc.createElement('gml:Polygon');
+                    polygon.setAttribute('srsName', "urn:ogc:def:crs:EPSG::4326http://www.opengis.net/def/crs/epsg/0/4326");
+                    polygon.setAttribute('gml:id', "P1");
+                    var exter = doc.createElement('gml:exterior');
+                    var LinearRing = doc.createElement('gml:LinearRing');
+                    var posList = doc.createElement('gml:posList');
+                    posList.textContent = coordinate;
+
+                    LinearRing.appendChild(posList);
+                    exter.appendChild(LinearRing);
+                    polygon.appendChild(exter);
+                    return polygon;
+                }
             }
-
-            if (type === 'Polygon') {
-
-                var polygon = doc.createElement('gml:Polygon');
-                polygon.setAttribute('srsName', "urn:ogc:def:crs:EPSG::4326http://www.opengis.net/def/crs/epsg/0/4326");
-                polygon.setAttribute('gml:id', "P1");
-                var exter = doc.createElement('gml:exterior');
-                var LinearRing = doc.createElement('gml:LinearRing');
-                var posList = doc.createElement('gml:posList');
-                posList.textContent = coordinate;
-
-                LinearRing.appendChild(posList);
-                exter.appendChild(LinearRing);
-                polygon.appendChild(exter);
-                return polygon;
-            }
-            return null;
         };
-
         return InsertXmlBuilder;
+
     });
+
+

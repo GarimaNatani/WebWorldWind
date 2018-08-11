@@ -53,14 +53,11 @@ define([
             pathPositions.push(new Position(45, -110, 1e4));
             pathPositions.push(new Position(46, -122, 1e4));
             // Create the path.
-           var path = new Path(pathPositions, null);
+            var path = new Path(pathPositions, null);
             var Type = ShapeTransformer.Transform(path);
 
             expect(Type.type).toBe('MultiLineString');
 
         });
-
-
-
     });
 });
